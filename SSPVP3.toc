@@ -1,0 +1,37 @@
+## Interface: 20400
+## Title: SSPVP 2
+## Version: $Revision: 808 $
+## Notes: PvP, Battleground and Arena mod
+## Author: Mayen
+## SavedVariables: SSPVPDB
+## OptionalDeps: Ace3, LibStub, OptionHouse, HousingAuthority
+
+lib\LibStub-1.0\LibStub-1.0.xml
+lib\CallbackHandler-1.0\CallbackHandler-1.0.xml
+lib\AceAddon-3.0\AceAddon-3.0.xml
+lib\AceConsole-3.0\AceConsole-3.0.xml
+lib\AceDB-3.0\AceDB-3.0.xml
+lib\AceEvent-3.0\AceEvent-3.0.xml
+lib\AceTimer-3.0\AceTimer-3.0.xml
+lib\OptionHouse.lua
+lib\HousingAuthority.lua
+
+localization.enUS.lua
+localization.deDE.lua
+localization.frFR.lua
+localization.zhCN.lua
+
+SSPVP2.lua
+
+modules\move.lua
+modules\config.lua
+modules\score.lua
+modules\overlay.lua
+modules\arena.lua
+modules\match.lua
+modules\flag.lua
+modules\eots.lua
+modules\av.lua
+modules\ab.lua
+modules\battlefield.lua
+modules\window.lua
