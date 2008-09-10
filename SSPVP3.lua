@@ -1,5 +1,5 @@
 --[[ 
-	SSPVP by Mayen Horde, Icecrown-US (PvE)
+	SSPVP by Mayen/Amarand Horde, Icecrown-US (PvE)
 	
 	1.x   Release: January 26th 2006
 	2.x   Release: December 27th 2006
@@ -691,33 +691,29 @@ function SSPVP:CombatText(text, color)
 end
 
 -- Queuing things to run when we leave combat
--- NOTE: CLEAN ME UP LATER
 function SSPVP:PLAYER_REGEN_ENABLED()
-	for i=#(queuedUpdates), 1, -1 do
-		local row = queuedUpdates[i]
-		if( row.handler ) then
-			row.handler[row.func](row.handler, unpack(row))
-		elseif( type(row.func) == "function" ) then
-			row.func(unpack(row))
+	for func, handler in pairs(queuedUpdates) do
+		if( type(handler) == "table" ) then
+			handler[func](handler)
+		elseif( type(func) == "string" ) then
+			getglobal(func)()
+		else
+			func()	
 		end
 		
-		table.remove(queuedUpdates, i)
+		queuedUpdates[func] = nil
 	end
 end
 
 function SSPVP:UnregisterOOCUpdate(func)
-	for i=#(queuedUpdates), 1, -1 do
-		if( queuedUpdates[i].func == func ) then
-			table.remove(queuedUpdates, i)
-		end
-	end
+	queuedUpdates[func] = nil
 end
 
-function SSPVP:RegisterOOCUpdate(self, func, ...)
+function SSPVP:RegisterOOCUpdate(self, func)
 	if( type(func) == "string" ) then
-		table.insert(queuedUpdates, {func = func, handler = self, ...})
+		queuedUpdates[func] = self
 	else
-		table.insert(queuedUpdates, {func = self, ...})
+		queuedUpdates[self] = true
 	end
 end
 

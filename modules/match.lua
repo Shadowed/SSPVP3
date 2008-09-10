@@ -37,7 +37,7 @@ end
 
 function Match:EnableModule(abbrev)
 	-- Only enable in AB/EoTS
-	if( abbrev ~= "ab" and abbrev ~= "eots" ) then
+	if( not self.db.profile[abbrev] ) then
 		self.isActive = nil
 		return
 	end

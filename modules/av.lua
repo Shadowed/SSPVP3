@@ -4,7 +4,7 @@ AV.activeIn = "av"
 local L = SSPVPLocals
 local timers = {}
 
-local allianceGain, allianceReinf, hordeGain, hordereinf = 0, 0, 0, 0
+local allianceGain, allianceReinf, hordeGain, hordeReinf = 0, 0, 0, 0
 
 function AV:OnInitialize()
 	self.defaults = {
@@ -323,13 +323,13 @@ if( IS_WRATH_BUILD ) then
 		return Orig_ChatFrame_OnEvent(self, event, msg, from, ...)
 	end
 else
-	function ChatFrame_OnEvent(event, msg, from, ...)
+	function ChatFrame_OnEvent(event, ...)
 		if( event == "CHAT_MSG_MONSTER_YELL" ) then
-			if( not checkMessage(msg, from) ) then
+			if( not checkMessage(arg1, arg2) ) then
 				return
 			end
 		end
 
-		return Orig_ChatFrame_OnEvent(event, msg, from, ...)
+		return Orig_ChatFrame_OnEvent(event, ...)
 	end
 end

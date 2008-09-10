@@ -29,10 +29,10 @@ modules\move.lua
 modules\config.lua
 modules\score.lua
 modules\overlay.lua
-modules\match.lua
-modules\flag.lua
 modules\eots.lua
 modules\av.lua
 modules\ab.lua
 modules\battlefield.lua
 modules\window.lua
+modules\match.lua
+modules\flag.lua

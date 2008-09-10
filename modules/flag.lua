@@ -102,7 +102,6 @@ function Flag:DisableModule()
 	SSOverlay:RemoveCategory("timer")
 	
 	self:UnregisterAllEvents()
-	self:OnEnable()
 end
 
 function Flag:Print(msg)
@@ -277,7 +276,7 @@ function Flag:PickUp(faction, name)
 		carriers[faction].time = GetTime()
 	end
 	
-	SSOverlay:RegisterElapsed(faction .. "time", "timer", L["Held Time: %s"], GetTime() - carriers[faction].time, Flag:GetFactionColor(faction))
+	SSOverlay:RegisterElapsed(faction .. "time", "timer", L["Held Time: %s"], GetTime() - carriers[faction].time, SSPVP:GetFactionColor(faction))
 	self:Show(faction)
 end
 
