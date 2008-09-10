@@ -206,38 +206,14 @@ SSPVPLocals = {
 	["One minute"] = "One minute",
 	
 	-- Slash commands
-	["SSPVP Arena slash commands"] = "SSPVP Arena slash commands",
-	[" - rating <rating> - Calculates points given from the passed rating."] = " - rating <rating> - Calculates points given from the passed rating.",
-	[" - points <points> - Calculates rating required to reach the passed points."] = " - points <points> - Calculates rating required to reach the passed points.",
-	[" - attend <played> <team> - Calculates games required to reach 30% using the passed games <played> out of the <team> games played."] = " - attend <played> <team> - Calculates games required to reach 30% using the passed games <played> out of the <team> games played.",
-	[" - change <winner rating> <loser rating> - Calculates points gained/lost assuming the <winner rating> beats <loser rating>."] = " - change <winner rating> <loser rating> - Calculates points gained/lost assuming the <winner rating> beats <loser rating>.",
-	[" - ui - Shows a small UI for entering rating/point/attendance/change info."] = " - ui - Shows a small UI for entering rating/point/attendance/change info.",
-		
 	["SSPVP slash commands"] = "SSPVP slash commands",
 	[" - suspend - Suspends auto join and leave for 5 minutes, or until you log off."] = " - suspend - Suspends auto join and leave for 5 minutes, or until you log off.",
-	[" - ui - Opens the OptionHouse configuration for SSPVP."] = " - ui - Opens the OptionHouse configuration for SSPVP.",
-	[" - Other slash commands"] = " - Other slash commands",
-	[" - /arena - Easy Arena calculations and conversions"] = " - /arena - Easy Arena calculations and conversions",
-	
+	[" - ui - Opens the configuration for SSPVP."] = " - ui - Opens the configuration for SSPVP.",
 	
 	["Auto join and leave has been suspended for the next 5 minutes, or until you log off."] = "Auto join and leave has been suspended for the next 5 minutes, or until you log off.",
 	["Suspension has been removed, you will now auto join and leave again."] = "Suspension has been removed, you will now auto join and leave again.",
 	["Suspension is still active, will not auto join or leave."] = "Suspension is still active, will not auto join or leave.",
 	
-	["[%d vs %d] %d rating = %d points"] = "[%d vs %d] %d rating = %d points",
-	["[%d vs %d] %d rating = %d points - %d%% = %d points"] = "[%d vs %d] %d rating = %d points - %d%% = %d points",
-	["[%d vs %d] %d points = %d rating"] = "[%d vs %d] %d points = %d rating",
-	
-	["%d games out of %d total is already above 30%% (%.2f%%)."] = "%d games out of %d total is already above 30%% (%.2f%%).",
-	["%d more games have to be played (%d total) to reach 30%%."] = "%d more games have to be played (%d total) to reach 30%%.",
-	
-	["+%d points (%d rating) / %d points (%d rating)"] = "+%d points (%d rating) / %d points (%d rating)",
-	
-	["Won: %d rating (%d points gained)"] = "Won: %d rating (%d points gained)",
-	["Lost: %d rating (%d points lost)"] = "Lost: %d rating (%d points lost)",
-	
-	["Vs"] = "Vs",
-
 	-- Overlay categories
 	["Faction Balance"] = "Faction Balance",
 	["Timers"] = "Timers",
@@ -247,163 +223,135 @@ SSPVPLocals = {
 	["Battlefield Queue"] = "Battlefield Queue",
 	["Frame Moving"] = "Frame Moving",
 	
-	-- GOOEY
-	["General"] = "General",
-	["Auto Queue"] = "Auto Queue",
-	["Battlefield"] = "Battlefield",
-	["Overlay"] = "Overlay",
-	["Display"] = "Display",
-	["Joining"] = "Joining",
-	["Leaving"] = "Leaving",
-
-	-- GENERAL
-	["Play"] = "Play",
-	["Stop"] = "Stop",
-	
-	["Sound file"] = "Sound file",
-	["Timer channel"] = "Timer channel",
-	["Show team summary after rated arena ends"] = "Show team summary after rated arena ends",
-	["Auto append server name while in battlefields for whispers"] = "Auto append server name while in battlefields for whispers",
-	["Auto queue when inside of a group and leader"] = "Auto queue when inside of a group and leader",
-	["Battleground"] = "Battleground",
-	["Party"] = "Party",
-	["Raid"] = "Raid",
-	
-	["Shows how much personal rating you gain/lost, will only show up if it's no the same amount of points as your actual team got."] = "Shows how much personal rating you gain/lost, will only show up if it's no the same amount of points as your actual team got.",
-
-	["Show personal rating change after arena ends"] = "Show personal rating change after arena ends",
-	
-	["Automatically append \"-server\" to peoples names when you whisper them, if multiple people are found to match the same name then it won't add the server."] = "Automatically append \"-server\" to peoples names when you whisper them, if multiple people are found to match the same name then it won't add the server.",
-	["Shows team names, points change and the new ratings after the arena ends."] = "Shows team names, points change and the new ratings after the arena ends.",
-	["Channel to output to when you send timers out from the overlay."] = "Channel to output to when you send timers out from the overlay.",
-	["Sound file to play when a queue is ready, file must be inside Interface/AddOns/SSPVP before you started the game."] = "Sound file to play when a queue is ready, file must be inside Interface/AddOns/SSPVP before you started the game.",
-	
-	["Auto queue when outside of a group"] = "Auto queue when outside of a group",
-	["Auto queue when inside a group and leader"] = "Auto queue when inside of a group and leader",
-	
-	["Queue Overlay"] = "Queue Overlay",
-	["Enable battlefield queue status"] = "Enable battlefield queue status",
-	["Show inside an active battlefield"] = "Show inside an active battlefield",
-	
-	["Entry Window"] = "Entry Window",
-	["Enable modified battlefield join window"] = "Enable modified battlefield join window",
-	["Shows time left to join the battlefield, also required for disabling the battlefield window from reshowing again."] = "Shows time left to join the battlefield, also required for disabling the battlefield window from reshowing again.",
-	
-	["Show battlefield window after it's hidden"] = "Show battlefield window after it's hidden",
-	["Reshows the battlefield window even if it's been hidden, requires modified window to be enabled."] = "Reshows the battlefield window even if it's been hidden, requires modified window to be enabled.",
-	
-	["Lock PvP objectives"] = "Lock PvP objectives",
-	["Lock scoreboard"] = "Lock scoreboard",
-	["Lock capture bar"] = "Lock capture bar",
-	["Shows an anchor above the frame that lets you move it, the frame you're trying to move may have to be visible to actually move it."] = "Shows an anchor above the frame that lets you move it, the frame you're trying to move may have to be visible to actually move it.",
-	
-	-- BATTLEFIELD
-	["Death"] = "Death",
-	["Scoreboard"] = "Scoreboard",
-	["Color player name by class"] = "Color player name by class",
-	["Hide class icon next to names"] = "Hide class icon next to names",
-	["Show player levels next to name"] = "Show player levels next to name",
-	["Release from corpse when inside an active battleground"] = "Release from corpse when inside an active battleground",
-	["Automatically use soul stone, if any on death"] = "Automatically use soul stone, if any on death",
-	
-	-- JOIN
-	["Delay"] = "Delay",
-	["Join priorities"] = "Join priorities",
-	["Enable auto join"] = "Enable auto join",
-	["Priority check mode"] = "Priority check mode",
-	["Less than"] = "Less than",
-	["Less than/equal"] = "Less than/equal",
-	["Battleground join delay"] = "Battleground join delay",
-	["AFK battleground join delay"] = "AFK battleground join delay",
-	["Arena join delay"] = "Arena join delay",
-	["Don't auto join a battlefield if the queue window is hidden"] = "Don't auto join a battlefield if the queue window is hidden",
-	
-	-- LEAVE
-	["Confirmation"] = "Confirmation",
-	["Confirm when leaving a battlefield queue through minimap list"] = "Confirm when leaving a battlefield queue through minimap list",
-	["Confirm when leaving a finished battlefield through score"] = "Confirm when leaving a finished battlefield through score",
-		
-	["Battlefield leave delay"] = "Battlefield leave delay",
-	["Enable auto leave"] = "Enable auto leave",
-	["Screenshot score board when game ends"] = "Screenshot score board when game ends",
-	
-	-- OVERLAY
-	["Frame"] = "Frame",
-	["Color"] = "Color",
-	["Lock overlay"] = "Lock overlay",
-	["Background opacity: %d%%"] = "Background opacity: %d%%",
-	["Scale: %d%%"] = "Scale: %d%%",
-	["Background color"] = "Background color",
-	["Border color"] = "Border color",
-	["Category text color"] = "Category text",
-	["Text color"] = "Text color",
-	["Grow up"] = "Grow up",
-	["The overlay will grow up instead of down when new rows are added, a reloadui maybe required for this to take affect."] = "The overlay will grow up instead of down when new rows are added, a reloadui maybe required for this to take affect.",
-
-	["Disable overlay clicking"] = "Disable overlay clicking",
-	["Removes the ability to click on the overlay, allowing you to interact with the 3D world instead. While the overlay is unlocked, this option is ignored."] = "Removes the ability to click on the overlay, allowing you to interact with the 3D world instead. While the overlay is unlocked, this option is ignored.",
-	
-	["Use short time format"] = "Use short time format",
-	["Shows timers as HH:MM:SS instead of X Minutes, X Seconds"] = "Shows timers as HH:MM:SS instead of X Minutes, X Seconds",
-	
-	-- AV
-	["Alerts"] = "Alerts",
-	["Timers"] = "Timers",
-	["Enable capture timers"] = "Enable capture timers",
-	["Enable interval capture messages"] = "Enable interval capture messages",
-	["Seconds between capture messages"] = "Seconds between capture messages",
-	["Show resources gained through mines"] = "Show resources gained through mines",
-	["Show resources lost from captains and towers in MSBT/SCT/FCT"] = "Show resources lost from captains and towers in MSBT/SCT/FCT",
-	["None"] = "None",
-	["25%"] = "25%",
-	["50%"] = "50%",
-	["75%"] = "75%",
-			
-	["Show player queue status in overlay"] = "Show player queue status in overlay",
-	["Displays how many people are queued, number of people who have confirmation for specific instance id's and the instance id's that people are currently playing inside."] = "Displays how many people are queued, number of people who have confirmation for specific instance id's and the instance id's that people are currently playing inside.",
-	["When the leader is ready for the group to join an Alterac Valley, he can force everyone into it with the required instance id. You will still be shown the instance id to join even if you disable this."] = "When the leader is ready for the group to join an Alterac Valley, he can force everyone into it with the required instance id. You will still be shown the instance id to join even if you disable this.",
-	
-	-- EOTS/AB/WSG
-	["Flag Carrier"] = "Flag Carrier",
-	["Match Info"] = "Match Info",
+	-- GUI
+	-- Flag configuration
+	["Flags"] = "Flags",
 	
 	["Show flag carrier"] = "Show flag carrier",
+	["Show flag respawn time on overlay"] = "Show flag respawn time on overlay",
+	["Show flag capture times on overlay"] = "Show flag capture times on overlay",
+	["Color carrier name by class"] = "Color carrier name by class",
 	["Show carrier health when available"] = "Show carrier health when available",
-	["Color carrier name by class color"] = "Color carrier name by class color",
-	["Time until flag respawns"] = "Time until flag respawns",
+	["Text to execute when clicking the carrier button"] = "Text to execute when clicking the carrier button",
+	
+	-- Match configuration
+	["Match info"] = "Match info",
 	
 	["Show basic match information"] = "Show basic match information",
 	["Show bases to win"] = "Show bases to win",
-	["Show flag held time and time taken to capture"] = "Show flag held time and time taken to capture",
 	
-	["Show points gained from flag captures in MSBT/SCT/FCT"] = "Show points gained from flag captures in MSBT/SCT/FCT",
+	-- Tiemr configuration
+	["Timers"] = "Timers",
 	
-	["Macro Text"] = "Macro Text",
-	["Text to execute when clicking on the flag carrier button"] = "Text to execute when clicking on the flag carrier button",
+	["Enable capture timers"] = "Enable capture timers",
+	["Show resources gained through mines"] = "Show resources gained through mines",
+	["Show resources lost from objectives in SCT/FCT/MSBT/ect"] = "Show resources lost from objectives in SCT/FCT/MSBT/ect",
 	
-	-- Disable modules
-	["Modules"] = "Modules",
-	["Disable %s"] = "Disable %s",
-	["match information"] = "match information",
-	["Time left in match, final scores and bases to win for Eye of the Storm and Arathi Basin."] = "Time left in match, final scores and bases to win for Eye of the Storm and Arathi Basin.",
+	["Alerts"] = "Alerts",
 	
-	["flag carrier"] = "flag carrier",
-	["Who's holding the flag currently for Eye of the Storm and Warsong Gulch."] = "Who's holding the flag currently for Eye of the Storm and Warsong Gulch.",
+	["Enable interval capture messages"] = "Enable interval capture messages",
+	["Alert interval"] = "Alert interval",
+	["Interval frequency increase"] = "Interval frequency increase",
+	["How much faster alerts should come when theres two minute left on the timer."] = "How much faster alerts should come when theres two minute left on the timer.",
+	
+	-- General
+	["General"] = "General",
+	
+	["Announcement channel"] = "Announcement channel",
+	["Sound file"] = "Sound file",
+	["Sound file to play when a queue is ready, this must be located inside Interface/AddOns/SSPVP before WoW is opened."] = "Sound file to play when a queue is ready, this must be located inside Interface/AddOns/SSPVP before WoW is opened.",
+	["Play sound"] = "Play sound",
+	["Stop sound"] = "Stop sound",
+	
+	["Auto queue"] = "Auto queue",
+	
+	["Auto queue when ungrouped"] = "Auto queue when ungrouped",
+	["Auto group queue when grouped and leader"] = "Auto group queue when grouped and leader",
+	
+	["Queue overlay"] = "Queue overlay",
+	
+	["Enable battlefield queue overlay"] = "Enable battlefield queue overlay",
+	["Show queue overlay inside battlefields"] = "Show queue overlay inside battlefields",
+	
+	["Entry window"] = "Entry window",
+	["Enable modified battlefield join dialog"] = "Enable modified battlefield join dialog",
+	["Shows the time left to join a battlefield in the battlefield entry dialog."] = "Shows the time left to join a battlefield in the battlefield entry dialog.",
+	["Enable battlefield join reminder"] = "Enable battlefield join reminder",
+	["Will pop the battlefield window back up after it's been closed occasionally until the queue expires."] = "Will pop the battlefield window back up after it's been closed occasionally until the queue expires.",
+	
+	["Frame anchors"] = "Frame anchors",
+	
+	["Lock PvP objectives"] = "Lock PvP objectives",
+	["Lock battlefield score board"] = "Lock battlefield score board",
+	["Lock node capture bar"] = "Lock node capture bar",
+	
+	-- Auto leave
+	["Auto leave"] = "Auto leave",
 
-	["Timers for Arathi Basin when capturing nodes."] = "Timers for Arathi Basin when capturing nodes.",
+	["Enable auto leave"] = "Enable auto leave",
+	["Screenshot score on game end"] = "Screenshot score on game end",
+	["Confirm when leaving queues"] = "Confirm when leaving queues",
+	
+	["Leave delay"] = "Leave delay",
+	
+	-- Auto join
+	["Auto join"] = "Auto join",
+	
+	["Enable auto join"] = "Enable auto join",
+	["Disable auto join if entry dialog is hidden"] = "Disable auto join if entry dialog is hidden",
+	["Priority check mode"] = "Priority check mode",
 
-	["Timers for Alterac Valley when capturing nodes, as well interval alerts on time left before capture."] = "Timers for Alterac Valley when capturing nodes, as well interval alerts on time left before capture.",
-	["Cleaning up the text in the PvP objectives along with points gained from captures in Eye of the Storm."] = "Cleaning up the text in the PvP objectives along with points gained from captures in Eye of the Storm.",
+	["Delay"] = "Delay",
+
+	["Battleground join delay"] = "Battleground join delay",
+	["AFK battleground join delay"] = "AFK battleground join delay",
+	["Arena join delay"] = "Arena join delay",
+
+	["Priorities"] = "Priorities",
+	["Priorities for joining battlegrounds."] = "Priorities for joining battlegrounds.",
+	["Scenarios"] = "Scenarios",
 	
-	["battleground"] = "battleground",
-	["General battleground specific changes like auto release."] = "General battleground specific changes like auto release.",
+	-- Battlefield
+	["Battlefield"] = "Battlefield",
 	
-	["score"] = "score",
-	["General scoreboard changes like coloring by class or hiding the class icons."] = "General scoreboard changes like coloring by class or hiding the class icons.",
+	["Auto append server names when whispering"] = "Auto append server names when whispering",
+	["Automatically appends \"-server\" to player names when whispering them, will not append if more than one person matches the name."] = "Automatically appends \"-server\" to player names when whispering them, will not append if more than one person matches the name.",
 	
-	["Disable auto release"] = "Disable auto release",
-	["Disables auto release for this specific battleground."] = "Disables auto release for this specific battleground.",
+	["Scoreboard"] = "Scoreboard",
 	
+	["Color player names by class"] = "Color player names by class",
+	["Hide class icons"] = "Hide class icons",
+	
+	["Death"] = "Death",
+	
+	["Auto use soul stone on death"] = "Auto use soul stone on death",
+	["Auto release from corpse while inside"] = "Auto release from corpse while inside",
+	
+	-- Overlay
+	["Overlay"] = "Overlay",
+	
+	["Grow display up"] = "Grow display up",
+	["Disable overlay clicking"] = "Disable overlay clicking",
+	["Use HH:MM:SS short time format"] = "Use HH:MM:SS short time format",
+	["Frame"] = "Frame",
+	["Lock overlay"] = "Lock overlay",
+	["Background opacity"] = "Background opacity",
+	["Scale"] = "Scale",
+	["Color"] = "Color",
+	["Background color"] = "Background color",
+	["Border color"] = "Border color",
+	["Text color"] = "Text color",
+	["Category text color"] = "Category text color",
+
+	["You might have to do a /console reloadui before changes take effect."] = "You might have to do a /console reloadui before changes take effect.",
+
+	["Raid"] = "Raid",
+	["Battleground"] = "Battleground",
+	["Party"] = "Party",
+	
+	["Less than"] = "Less than",
+	["Less than or equal"] = "Less than or equal",
+
 	-- Priorities
 	["afk"] = "Away from Keyboard",
 	["ratedArena"] = "Rated Arena",

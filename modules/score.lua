@@ -3,9 +3,6 @@ Score.activeIn = "bf"
 
 local L = SSPVPLocals
 
-local enemies = {}
-local friendlies = {}
-
 local servers = {}
 local classes = {}
 
@@ -17,7 +14,6 @@ local playerName
 function Score:OnInitialize()
 	self.defaults = {
 		profile = {
-			level = false,
 			icon = true,
 			color = true,
 			sameServer = true,
@@ -33,12 +29,6 @@ function Score:OnInitialize()
 end
 
 function Score:EnableModule()
-	if( self.db.profile.level ) then
-		self:RegisterEvent("PLAYER_TARGET_CHANGED")
-		self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-		self:RegisterEvent("RAID_ROSTER_UPDATE")
-	end
-	
 	self:CreateInfoButtons()
 end
 
@@ -51,40 +41,6 @@ function Score:Reload()
 		self:UnregisterAllEvents()
 		self:EnableModule()
 	end
-end
-
--- Maintain a list of friendly players
-function Score:RAID_ROSTER_UPDATE()
-	for i=1, GetNumRaidMembers() do
-		local unit = "raid" .. i
-		local name, server = UnitName(unit)
-		
-		if( server and server ~= "" ) then
-			friendlies[name .. "-" .. server] = UnitLevel(unit)
-		else
-			friendlies[name] = UnitLevel(unit)
-		end
-	end
-end
-
--- Maintain a list of enemy players
-function Score:UPDATE_MOUSEOVER_UNIT()
-	self:CheckUnit("mouseover")
-end
-
-function Score:PLAYER_TARGET_CHANGED()
-	self:CheckUnit("target")
-end
-
-function Score:CheckUnit(unit)
-	if( UnitIsEnemy(unit, "player") and UnitIsPVP(unit) and UnitIsPlayer(unit) ) then	
-		local name, server = UnitName(unit)
-		if( server and server ~= "" ) then
-			enemies[name .. "-" .. server] = UnitLevel(unit)
-		else
-			enemies[name] = UnitLevel(unit)
-		end
-	end	
 end
 
 -- Create our tooltip
@@ -286,16 +242,6 @@ hooksecurefunc("WorldStateScoreFrame_Update", function()
 				getglobal("WorldStateScoreButton" .. i .. "ClassButtonIcon"):Hide()
 			end
 
-			-- Show level next to the name
-			local level = ""
-			if( Score.db.profile.level ) then
-				if( enemies[name] ) then
-					level = "[" .. enemies[name] .. "] "
-				elseif( friendlies[name] ) then
-					level = "[" .. friendlies[name] .. "] "
-				end
-			end
-
 			-- Show new rating next to the rating change
 			if( isArena ) then
 				local teamName, oldRating, newRating = GetBattlefieldTeamInfo(faction)
@@ -322,9 +268,9 @@ hooksecurefunc("WorldStateScoreFrame_Update", function()
 			
 			-- Server provided, so show it!
 			if( server ) then
-				nameText:SetFormattedText("%s%s%s|r - %s", level, color, name, server)
+				nameText:SetFormattedText("%s%s|r - %s", color, name, server)
 			else
-				nameText:SetFormattedText("%s%s%s|r", level, color, name)
+				nameText:SetFormattedText("%s%s|r", color, name)
 			end
 		end
 	end

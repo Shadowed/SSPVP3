@@ -12,7 +12,7 @@ SSPVP = LibStub("AceAddon-3.0"):NewAddon("SSPVP", "AceEvent-3.0", "AceTimer-3.0"
 
 local L = SSPVPLocals
 
-local activeBF, activeID, joinID, joinAt, joinPriority, screenTaken, confirmLeave, suspendMod
+local activeBF, activeID, joinID, joinAt, joinPriority, screenTaken, suspendMod
 
 local teamTotals = {[2] = 0, [3] = 0, [5] = 0}
 local statusInfo = {}
@@ -55,20 +55,17 @@ function SSPVP:OnInitialize()
 				enabled = true,
 				screen = false,
 				portConfirm = true,
-				leaveConfirm = false,
 				delay = 10,
 			},
 			queue = {
 				enabled = true,
 				inBattle = false,
 			},
-			modules = {},
 		}
 	}
 	
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("SSPVPDB", self.defaults)
 		
-	self.OptionHouse = LibStub("OptionHouse-1.1")
 	self.revision = tonumber(string.match("$Revision: 816 $", "(%d+)")) or 0
 	self.revision = max(self.revision, SSPVPRevision)
 	
@@ -89,13 +86,13 @@ function SSPVP:OnInitialize()
 			-- Update queue overlay if required
 			SSPVP:UPDATE_BATTLEFIELD_STATUS()
 		elseif( input == "ui" ) then
-			SSPVP.OptionHouse:Open("SSPVP2")
+			SSPVP.modules.Config:Open()
 		else
 			DEFAULT_CHAT_FRAME:AddMessage(L["SSPVP slash commands"])
 			DEFAULT_CHAT_FRAME:AddMessage(L[" - suspend - Suspends auto join and leave for 5 minutes, or until you log off."])
-			DEFAULT_CHAT_FRAME:AddMessage(L[" - ui - Opens the OptionHouse configuration for SSPVP."])
+			DEFAULT_CHAT_FRAME:AddMessage(L[" - ui - Opens the configuration for SSPVP."])
 		end
-	end)
+	end
 end
 
 function SSPVP:OnEnable()
@@ -245,7 +242,7 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 				local abbrev = self:GetAbbrev(map)
 				for name, module in pairs(self.modules) do
 					-- Make sure the module is enabled, and that it can actually be enabled
-					if( not self.db.profile.modules[name] and module.EnableModule ) then
+					if( module.EnableModule ) then
 						-- Some modules have to be disabled even if they're about to be re-enabled
 						-- when switching battlefields, this is mostly to be safe
 						if( module.isActive ) then
@@ -446,7 +443,6 @@ function SSPVP:LeaveBattlefield()
 		end
 	end
 
-	confirmLeave = true
 	LeaveBattlefield()
 end
 
@@ -695,6 +691,7 @@ function SSPVP:CombatText(text, color)
 end
 
 -- Queuing things to run when we leave combat
+-- NOTE: CLEAN ME UP LATER
 function SSPVP:PLAYER_REGEN_ENABLED()
 	for i=#(queuedUpdates), 1, -1 do
 		local row = queuedUpdates[i]
@@ -724,33 +721,7 @@ function SSPVP:RegisterOOCUpdate(self, func, ...)
 	end
 end
 
--- Hooks for confirmations on leaving
--- "Leave Battlefield" button confirmation
-local Orig_LeaveBattlefield = LeaveBattlefield
-function LeaveBattlefield(...)
-	if( SSPVP.db.profile.leave.leaveConfirm and not confirmLeave and this:GetName() ~= "WorldStateScoreFrameLeaveButton" ) then
-		local map, status, teamSize
-		for i=1, MAX_BATTLEFIELD_QUEUES do
-			status, map, _, _, _, teamSize = GetBattlefieldStatus(i)
-			if( status == "active" ) then
-				break
-			end
-		end
-		
-		if( teamSize > 0 ) then
-			StaticPopupDialogs["CONFIRM_BATTLEFIELD_LEAVE"].text = string.format(L["You are about to leave the active or queued arena %s (%dvs%d), are you sure?"], map, teamSize, teamSize)
-		else
-			StaticPopupDialogs["CONFIRM_BATTLEFIELD_LEAVE"].text = string.format(L["You are about to leave the active or queued battleground %s, are you sure?"], map)
-		end
-		
-		StaticPopup_Show("CONFIRM_BATTLEFIELD_LEAVE")
-		return
-	end
-	
-	confirmLeave = nil
-	Orig_LeaveBattlefield(...)
-end
-
+-- Hook for confirmations on leaving
 -- Leaving queues, or hitting leave battlefield through minimap
 local Orig_AcceptBattlefieldPort = AcceptBattlefieldPort
 function AcceptBattlefieldPort(id, accept, ...)
@@ -783,20 +754,6 @@ StaticPopupDialogs["CONFIRM_PORT_LEAVE"] = {
 	OnAccept = function(id)
 		confirmPortLeave[id] = true
 		AcceptBattlefieldPort(id, nil)
-	end,
-	timeout = 0,
-	whileDead = 1,
-	hideOnEscape = 1,
-	multiple = 1,
-}
-
-StaticPopupDialogs["CONFIRM_BATTLEFIELD_LEAVE"] = {
-	text = "",
-	button1 = TEXT(YES),
-	button2 = TEXT(NO),
-	OnAccept = function()
-		confirmLeave = true
-		LeaveBattlefield()
 	end,
 	timeout = 0,
 	whileDead = 1,

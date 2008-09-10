@@ -9,13 +9,16 @@ local joinedQueue = {}
 function BF:OnInitialize()
 	self.defaults = {
 		profile = {
-			release = true,
 			whispers = true,
 			soulstone = false,
-			eots = false,
-			av = false,
-			wsg = false,
-			ab = false,
+			
+			release = {
+				eots = true,
+				av = true,
+				wsg = true,
+				ab = true,
+				arena = false,
+			},
 		},
 	}
 	
@@ -24,12 +27,9 @@ end
 
 function BF:EnableModule(abbrev)
 	self:RegisterEvent("CHAT_MSG_BG_SYSTEM_NEUTRAL")
+	self:RegisterEvent("PLAYER_DEAD")
+
 	self.activeBF = abbrev
-	
-	-- May not want to auto release in arenas in case a team mates going to try and ressurect you
-	if( abbrev ~= "arena" ) then
-		self:RegisterEvent("PLAYER_DEAD")
-	end
 	
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", self.FilterSystemMessages)
 end
@@ -71,7 +71,7 @@ end
 
 -- Auto release
 function BF:PLAYER_DEAD()
-	if( self.db.profile.release and not self.db.profile[self.activeBF] ) then
+	if( self.db.profile.release[self.activeBF] ) then
 		-- No soul stone, release
 		if( not HasSoulstone() ) then
 			StaticPopupDialogs["DEATH"].text = L["Releasing..."]

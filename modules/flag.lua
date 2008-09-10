@@ -190,17 +190,6 @@ function Flag:StripServer(text)
 	return name
 end
 
-function Flag:GetFactionColor(faction)
-	if( faction == "Alliance" ) then
-		return ChatTypeInfo["BG_SYSTEM_ALLIANCE"]
-	elseif( faction == "Horde" ) then
-		return ChatTypeInfo["BG_SYSTEM_HORDE"]
-	end
-	
-	return ChatTypeInfo["BG_SYSTEM_NEUTRAL"]
-end
-
-
 -- Parse event for changes
 function Flag:ParseMessage(event, msg)
 	-- More sane for us to do it here
@@ -249,7 +238,7 @@ end
 -- Flag captured = time reset as well
 function Flag:Captured(faction)
 	if( self.db.profile[self.activeBF].respawn and respawnTimes[self.activeBF] ) then
-		SSOverlay:RegisterTimer("respawn", "timer", L["Flag Respawn: %s"], respawnTimes[self.activeBF], self:GetFactionColor(faction))
+		SSOverlay:RegisterTimer("respawn", "timer", L["Flag Respawn: %s"], respawnTimes[self.activeBF], SSPVP:GetFactionColor(faction))
 	end
 	
 	SSOverlay:RemoveRow(faction .. "time")
