@@ -63,9 +63,12 @@ function EOTS:ParseCombat(event, msg)
 end
 
 -- Clean up the text to not be so hugeassly long
-hooksecurefunc("WorldStateAlwaysUpFrame_Update", function()
+local Orig_WorldStateAlwaysUpFrame_Update = WorldStateAlwaysUpFrame_Update
+function WorldStateAlwaysUpFrame_Update(...)
+	Orig_WorldStateAlwaysUpFrame_Update(...)
+	
 	if( AlwaysUpFrame1 ) then
-		local alliance = getglobal("AlwaysUpFrame1Text")
+		local alliance = AlwaysUpFrame1Text
 		local bases, points = string.match(alliance:GetText(), L["Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000"])
 		
 		if( bases and points ) then
@@ -74,11 +77,11 @@ hooksecurefunc("WorldStateAlwaysUpFrame_Update", function()
 	end
 	
 	if( AlwaysUpFrame2 ) then
-		local horde = getglobal("AlwaysUpFrame2Text")
+		local horde = AlwaysUpFrame2Text
 		local bases, points = string.match(horde:GetText(), L["Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000"])
 
 		if( bases and points ) then
 			horde:SetText(string.format( L["Bases %d  Points %d/2000"], bases, points))
 		end
 	end
-end)
+end

@@ -5,7 +5,8 @@ local L = SSPVPLocals
 local CREATED_ROWS = 0
 local MAX_ROWS = 20
 local ADDED_ENTRIES = 0
-local longestText = 0
+local rows, catCount, categories, config = {}, {}, {}, {}
+local longestText, resortRows = 0
 local growUp
 local resortRows
 
@@ -38,7 +39,6 @@ function SSOverlay:OnInitialize()
 	}
 	
 	self.db = SSPVP.db:RegisterNamespace("overlay", self.defaults)
-	growUp = self.db.profile.growUp
 end
 
 function SSOverlay:Reload()
@@ -49,24 +49,31 @@ function SSOverlay:Reload()
 	self.frame:SetScale(self.db.profile.scale)
 	self.frame:SetBackdropColor(self.db.profile.background.r, self.db.profile.background.g, self.db.profile.background.b, self.db.profile.opacity)
 	self.frame:SetBackdropBorderColor(self.db.profile.border.r, self.db.profile.border.g, self.db.profile.border.b, self.db.profile.opacity)
+	self.frame:EnableMouse(not self.db.profile.locked)
 	self:UpdateOverlay()
 	
-	-- If overlay is unlocked, enable the mouse. If they're locked then disable it
-	if( not self.db.profile.locked ) then
-		self.frame:EnableMouse(true)
-	else
-		self.frame:EnableMouse(false)
-	end
-	
-	
 	for i=1, CREATED_ROWS do
-		-- If overlay is unlocked, disable mouse so we can move
-		-- If it's locked, then enable it if we're not disabling it
+		local row = self.rows[i]
+		
+		-- If overlay is unlocked, disable mouse so we can move, If it's locked, then enable it if we're not disabling it
 		if( not self.db.profile.locked ) then
-			self.rows[i]:EnableMouse(false)
+			row:EnableMouse(false)
 		else
-			self.rows[i]:EnableMouse(not self.db.profile.noClick)
+			row:EnableMouse(not self.db.profile.noClick)
 		end
+
+		if( i > 1 ) then
+			row:SetPoint("TOPLEFT", self.rows[CREATED_ROWS - 1], "TOPLEFT", 0, -12)
+		else
+			row:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 5, -5)
+		end
+	end
+
+	local scale = self.frame:GetEffectiveScale()
+	if( not self.db.profile.growUp ) then
+		self.frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.profile.x / scale, self.db.profile.y / scale)
+	else
+		self.frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.db.profile.x / scale, self.db.profile.y / scale)
 	end
 end
 
@@ -79,11 +86,11 @@ local function onClick(self)
 	-- Trigger it
 	local row = rows[self.dataID]
 	if( row.handler ) then
-		row.handler[row.func](row.handler, unpack(row.args))
+		row.handler[row.func](row.handler, row.arg)
 	elseif( type(row.func) == "string" ) then
-		getglobal(row.func)(unpack(row.args))
+		getglobal(row.func)(row.arg)
 	elseif( type(row.func) == "function" ) then
-		row.func(unpack(row.args))
+		row.func(row.arg)
 	end
 end
 
@@ -385,8 +392,7 @@ function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priorit
 end
 
 -- Associates something to run when we click on a row in the overlay
-local noArgs = {}
-function SSOverlay:RegisterOnClick(id, handler, func, ...)
+function SSOverlay:RegisterOnClick(id, handler, func, arg)
 	local row
 	for _, data in pairs(rows) do
 		if( data.id == id ) then
@@ -406,11 +412,7 @@ function SSOverlay:RegisterOnClick(id, handler, func, ...)
 		row.func = func
 	end
 	
-	if( select("#", ...) > 0 ) then
-		row.args = { ... }
-	else
-		row.args = noArgs
-	end
+	row.arg = arg
 end
 
 -- Create container frame
@@ -424,30 +426,15 @@ function SSOverlay:CreateFrame()
 	self.frame:SetClampedToScreen(true)
 	self.frame:SetMovable(true)
 	self.frame:SetFrameStrata("BACKGROUND")
-
-	-- Locky, Clocky, Blocky, Tocky, Mocky
-	if( not self.db.profile.locked ) then
-		self.frame:EnableMouse(true)
-	else
-		self.frame:EnableMouse(false)
-	end
 		
-	-- Position to saved area
-	local scale = self.frame:GetEffectiveScale()
-	if( not growUp ) then
-		self.frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.profile.x / scale, self.db.profile.y / scale)
-	else
-		self.frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.db.profile.x / scale, self.db.profile.y / scale)
-	end
-
-	self.frame:SetScript("OnMouseUp", function(self)
+	self.frame:SetScript("OnDragStop", function(self)
 		if( self.isMoving ) then
 			self:StopMovingOrSizing()
 
 			local scale = self:GetEffectiveScale()
 			SSOverlay.db.profile.x = self:GetLeft() * scale
 			
-			if( not growUp ) then
+			if( not SSOverlay.db.profile.growUp ) then
 				SSOverlay.db.profile.y = self:GetTop() * scale
 			else
 				SSOverlay.db.profile.y = self:GetBottom() * scale
@@ -455,7 +442,7 @@ function SSOverlay:CreateFrame()
 		end
 	end)
 
-	self.frame:SetScript("OnMouseDown", function(self)
+	self.frame:SetScript("OnDragStart", function(self)
 		if( not SSOverlay.db.profile.locked ) then
 			self.isMoving = true
 			self:StartMoving()
@@ -468,9 +455,8 @@ function SSOverlay:CreateFrame()
 				tileSize = 9,
 				edgeSize = 9,
 				insets = { left = 2, right = 2, top = 2, bottom = 2 }})	
-
-	self.frame:SetBackdropColor(self.db.profile.background.r, self.db.profile.background.g, self.db.profile.background.b, self.db.profile.opacity)
-	self.frame:SetBackdropBorderColor(self.db.profile.border.r, self.db.profile.border.g, self.db.profile.border.b, self.db.profile.opacity)
+				
+	self:Reload()
 end
 
 -- Create a new row
@@ -507,7 +493,7 @@ function SSOverlay:CreateRow()
 	
 
 	-- Reposition it if we're growing up
-	if( growUp ) then
+	if( self.db.profile.growUp ) then
 		local scale = self.frame:GetEffectiveScale()
 		self.frame:ClearAllPoints()
 		self.frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.db.profile.x / scale, self.db.profile.y / scale)

@@ -30,6 +30,7 @@ function BF:EnableModule(abbrev)
 	if( abbrev ~= "arena" ) then
 		self:RegisterEvent("PLAYER_DEAD")
 	end
+	
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", self.FilterSystemMessages)
 end
 
@@ -54,7 +55,6 @@ function BF.FilterSystemMessages(msg)
 	
 	return false
 end
-
 
 -- Start timers
 function BF:CHAT_MSG_BG_SYSTEM_NEUTRAL(event, msg)
@@ -107,7 +107,7 @@ function SendChatMessage(text, type, language, target, ...)
 			local name = GetBattlefieldScore(i)
 			
 			-- Make sure they're from another server
-			if(  name and string.match(string.lower(name), "^" .. string.lower(target)) ) then
+			if( name and string.match(string.lower(name), "^" .. string.lower(target)) ) then
 				player = name
 				results = results + 1
 			end

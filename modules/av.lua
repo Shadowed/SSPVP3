@@ -4,11 +4,7 @@ AV.activeIn = "av"
 local L = SSPVPLocals
 local timers = {}
 
-local allianceGain = 0
-local allianceReinf = 0
-
-local hordeGain = 0
-local hordeReinf = 0
+local allianceGain, allianceReinf, hordeGain, hordereinf = 0, 0, 0, 0
 
 function AV:OnInitialize()
 	self.defaults = {
@@ -60,17 +56,19 @@ function AV:Reload()
 end
 
 function AV:Message(alert)
-	-- AceTimer-3.0 doesn't let us unregister a timer easly for this kind of case
-	-- so we have to do extra checks here to be safe
-	if( not timers[alert.name] or not self.db.profile.announce ) then
+	local name, seconds, faction = string.split(":", alert)
+	seconds = tonumber(seconds)
+	if( not name or not seconds or not timers[name] or not self.db.profile.announce ) then
 		return
 	end
-	
 
-	SSPVP:ChatMessage(string.format(L["%s will be captured by the %s in %s"], alert.name, L[alert.faction], SecondsToTime(alert.seconds)), alert.faction)
+	SSPVP:ChatMessage(string.format(L["%s will be captured by the %s in %s"], name, L[faction], SecondsToTime(seconds)), faction)
 end
 
-function AV:PrintTimer(node, captureTime, faction)
+function AV:PrintTimer(data)
+	local node, captureTime, faction = string.split(":", data)
+	captureTime = tonumber(captureTime)
+	
 	if( not node or not captureTime or not faction ) then
 		return
 	end
@@ -88,15 +86,15 @@ function AV:StartAnnounce(name, faction)
 		end
 		
 		if( mod(seconds, interval) == 0 ) then
-			self:ScheduleTimer("Message", 245 - seconds, {name = name, seconds = seconds, faction = faction})
+			self:ScheduleTimer("Message", 245 - seconds, string.format("%s:%s:%s", name, seconds, faction))
 		end
 	end
 end
 
 -- Captain death, or reinforcements gained through mines
 function AV:UPDATE_WORLD_STATES()
-	local _, _, allianceText = GetWorldStateUIInfo(1)
-	local _, _, hordeText = GetWorldStateUIInfo(2)
+	local allianceText = select(3, GetWorldStateUIInfo(1))
+	local hordeText = select(3, GetWorldStateUIInfo(2))
 	
 	-- No text found (shouldn't happen)
 	if( not allianceText or not hordeText ) then
@@ -170,7 +168,7 @@ function AV:CHAT_MSG_MONSTER_YELL(event, msg, npc)
 			
 			if( self.db.profile.timer ) then
 				SSOverlay:RegisterTimer(name, "timer", name .. ": %s", 245, SSPVP:GetFactionColor(faction))
-				SSOverlay:RegisterOnClick(name, self, "PrintTimer", name, timers[name], L[faction])
+				SSOverlay:RegisterOnClick(name, self, "PrintTimer", string.format("%s:%s:%s", name, timers[name], L[faction]))
 			end
 
 			if( self.db.profile.announce ) then
@@ -211,110 +209,127 @@ function AV:CHAT_MSG_MONSTER_YELL(event, msg, npc)
 		timers[L["Ivus the Forest Lord"]] = GetTime() + 600
 		
 		SSOverlay:RegisterTimer(npc, "timer", L["Ivus Moving: %s"], 600, SSPVP:GetFactionColor("Horde"))
-		SSOverlay:RegisterOnClick(name, self, "PrintTimer", L["Ivus the Forest Lord"], timers[L["Ivus the Forest Lord"]], L["Horde"])
+		SSOverlay:RegisterOnClick(name, self, "PrintTimer", string.format("%s:%s:%s", L["Ivus the Forest Lord"], timers[L["Ivus the Forest Lord"]], L["Horde"]))
 	
 	-- Lokholar the Ice Lord was summoned successfully
 	elseif( self.db.profile.timer and npc == L["Lokholar the Ice Lord"] and string.match(msg, L["WHO DARES SUMMON LOKHOLA"]) ) then
 		timers[L["Lokholar the Ice Lord"]] = GetTime() + 600
 
 		SSOverlay:RegisterTimer(npc, "timer", L["Lokholar Moving: %s"], 600, SSPVP:GetFactionColor("Alliance"))
-		SSOverlay:RegisterOnClick(name, self, "PrintTimer", L["Lokholar the Ice Lord"], timers[L["Lokholar the Ice Lord"]], L["Alliance"])
+		SSOverlay:RegisterOnClick(name, self, "PrintTimer", string.format("%s:%s:%s", L["Lokholar the Ice Lord"], timers[L["Lokholar the Ice Lord"]], L["Alliance"]))
 	end
 end
 
 -- For some god knows why reason, SF GY being claimed triggers the "correct" events
 -- so we have to add specific checks for it which is sadface
-function AV:CHAT_MSG_BG_SYSTEM_HORDE(event, msg)
+function AV:CheckBGMessage(faction, msg)
 	if( string.match(msg, L["claims the Snowfall graveyard"]) ) then
-		timers[L["Snowfall Graveyard"]] = GetTime() + 304
+		local name = L["Snowfall Graveyard"]
+		timers[name] = GetTime() + 304
 
 		if( self.db.profile.timer ) then
-			SSOverlay:RegisterTimer(L["Snowfall Graveyard"], "timer", L["Snowfall Graveyard"] .. ": %s", 304, SSPVP:GetFactionColor("Horde"))
-			SSOverlay:RegisterOnClick(L["Snowfall Graveyard"], self, "PrintTimer", L["Snowfall Graveyard"], timers[name], L["Horde"])
+			SSOverlay:RegisterTimer(name, "timer", name .. ": %s", 304, SSPVP:GetFactionColor(faction))
+			SSOverlay:RegisterOnClick(name, self, "PrintTimer", string.format(name, timers[name], L[faction]))
 		end
 
 		if( self.db.profile.announce ) then
-			self:StartAnnounce(L["Snowfall Graveyard"], "Horde", timers[L["Snowfall Graveyard"]])
+			self:StartAnnounce(name, "Horde", timers[name])
 		end
 	end
+end
+
+function AV:CHAT_MSG_BG_SYSTEM_HORDE(event, msg)
+	self:CheckBGMessage("Horde", msg)
 end
 
 function AV:CHAT_MSG_BG_SYSTEM_ALLIANCE(event, msg)
-	if( string.match(msg, L["claims the Snowfall graveyard"]) ) then
-		timers[L["Snowfall Graveyard"]] = GetTime() + 304
-
-		if( self.db.profile.timer ) then
-			SSOverlay:RegisterTimer(L["Snowfall Graveyard"], "timer", L["Snowfall Graveyard"] .. ": %s", 304, SSPVP:GetFactionColor("Alliance"))
-			SSOverlay:RegisterOnClick(L["Snowfall Graveyard"], self, "PrintTimer", L["Snowfall Graveyard"], timers[name], L["Alliance"])
-		end
-		
-		if( self.db.profile.announce ) then
-			self:StartAnnounce(L["Snowfall Graveyard"], "Alliance", timers[L["Snowfall Graveyard"]])
-		end
-	end
+	self:CheckBGMessage("Alliance", msg)
 end
 
+
 -- Block spammy messages and clarify them
-local Orig_ChatFrame_OnEvent = ChatFrame_OnEvent
-function ChatFrame_OnEvent(event, ...)
-	if( event == "CHAT_MSG_MONSTER_YELL" ) then
-		if( arg2 == L["Herald"] ) then
-			if( string.match(arg1, L["Alliance"]) ) then
-				SSPVP:ChatMessage(arg1, "Alliance")
-				return
-				
-			elseif( string.match(arg1, L["Horde"]) ) then
-				SSPVP:ChatMessage(arg1, "Horde")
-				return
-			end
-			
-		elseif( arg2 == L["Vanndar Stormpike"] ) then
-			if( string.match(arg1, L["Soldiers of Stormpike, your General is under attack"]) ) then
-				SSPVP:ChatMessage(L["The Horde has engaged Vanndar Stormpike."], "Horde")
-				return
-			
-			elseif( string.match(arg1, L["Why don't ya try again"]) ) then
-				SSPVP:ChatMessage(L["The Horde has reset Vanndar Stormpike."], "Horde")
-				return
+local function checkMessage(msg, from)
+	if( from == L["Herald"] ) then
+		if( string.match(msg, L["Alliance"]) ) then
+			SSPVP:ChatMessage(msg, "Alliance")
+			return
 
-			elseif( string.match(arg1, L["You'll never get me out of me"]) ) then
-				return
-			end
-		
-		elseif( arg2 == L["Drek'Thar"] ) then
-			if( string.match(arg1, L["Stormpike filth!"]) ) then
-				SSPVP:ChatMessage(L["The Alliance has engaged Drek'Thar."], "Alliance")
-				return
-				
-			elseif( string.match(arg1, L["You seek to draw the General of the Frostwolf"]) ) then
-				SSPVP:ChatMessage(L["The Alliance has reset Drek'Thar."], "Alliance")
-				return
+		elseif( string.match(msg, L["Horde"]) ) then
+			SSPVP:ChatMessage(msg, "Horde")
+			return
+		end
 
-			elseif( string.match(arg1, L["Stormpike weaklings"]) ) then
-				return
-			end
-			
-		elseif( arg2 == L["Captain Balinda Stonehearth"] ) then
-			if( string.match(arg1, L["Begone, uncouth scum!"]) ) then
-				SSPVP:ChatMessage(L["The Horde has engaged Captain Balinda Stonehearth."], "Horde")
-				return
-			
-			elseif( string.match(arg1, L["Filthy Frostwolf cowards"]) ) then
-				SSPVP:ChatMessage(L["The Horde has reset Captain Balinda Stonehearth."], "Horde")
-				return
-			end
-		
-		elseif( arg2 == L["Captain Galvangar"] ) then
-			if( string.match(arg1, L["Your kind has no place in Alterac Valley"]) ) then
-				SSPVP:ChatMessage(L["The Alliance has engaged Captain Galvangar."], "Alliance")
-				return
-				
-			elseif( string.match(arg1, L["I'll never fall for that, fool!"]) ) then
-				SSPVP:ChatMessage(L["The Alliance has reset Captain Galvangar."], "Alliance")
-				return
-			end
+	elseif( from == L["Vanndar Stormpike"] ) then
+		if( string.match(msg, L["Soldiers of Stormpike, your General is under attack"]) ) then
+			SSPVP:ChatMessage(L["The Horde has engaged Vanndar Stormpike."], "Horde")
+			return
+
+		elseif( string.match(msg, L["Why don't ya try again"]) ) then
+			SSPVP:ChatMessage(L["The Horde has reset Vanndar Stormpike."], "Horde")
+			return
+
+		elseif( string.match(msg, L["You'll never get me out of me"]) ) then
+			return
+		end
+
+	elseif( from == L["Drek'Thar"] ) then
+		if( string.match(msg, L["Stormpike filth!"]) ) then
+			SSPVP:ChatMessage(L["The Alliance has engaged Drek'Thar."], "Alliance")
+			return
+
+		elseif( string.match(msg, L["You seek to draw the General of the Frostwolf"]) ) then
+			SSPVP:ChatMessage(L["The Alliance has reset Drek'Thar."], "Alliance")
+			return
+
+		elseif( string.match(msg, L["Stormpike weaklings"]) ) then
+			return
+		end
+
+	elseif( from == L["Captain Balinda Stonehearth"] ) then
+		if( string.match(msg, L["Begone, uncouth scum!"]) ) then
+			SSPVP:ChatMessage(L["The Horde has engaged Captain Balinda Stonehearth."], "Horde")
+			return
+
+		elseif( string.match(msg, L["Filthy Frostwolf cowards"]) ) then
+			SSPVP:ChatMessage(L["The Horde has reset Captain Balinda Stonehearth."], "Horde")
+			return
+		end
+
+	elseif( from == L["Captain Galvangar"] ) then
+		if( string.match(msg, L["Your kind has no place in Alterac Valley"]) ) then
+			SSPVP:ChatMessage(L["The Alliance has engaged Captain Galvangar."], "Alliance")
+			return
+
+		elseif( string.match(msg, L["I'll never fall for that, fool!"]) ) then
+			SSPVP:ChatMessage(L["The Alliance has reset Captain Galvangar."], "Alliance")
+			return
 		end
 	end
 	
-	return Orig_ChatFrame_OnEvent(event, ...)
+	return true
+end
+
+-- Deal with the fact that Blizzard now uses self, ... instead of just ...
+-- not the cleanest method, I'd rather use a filter but filters only gives you the message not the author.
+local Orig_ChatFrame_OnEvent = ChatFrame_OnEvent
+if( IS_WRATH_BUILD ) then
+	function ChatFrame_OnEvent(self, event, msg, from, ...)
+		if( event == "CHAT_MSG_MONSTER_YELL" ) then
+			if( not checkMessage(msg, from) ) then
+				return
+			end
+		end
+		
+		return Orig_ChatFrame_OnEvent(self, event, msg, from, ...)
+	end
+else
+	function ChatFrame_OnEvent(event, msg, from, ...)
+		if( event == "CHAT_MSG_MONSTER_YELL" ) then
+			if( not checkMessage(msg, from) ) then
+				return
+			end
+		end
+
+		return Orig_ChatFrame_OnEvent(event, msg, from, ...)
+	end
 end

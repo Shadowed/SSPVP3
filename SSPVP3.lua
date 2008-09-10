@@ -8,7 +8,7 @@
 	3     Release: September 09th 2008
 ]]
 
-SSPVP = LibStub("AceAddon-3.0"):NewAddon("SSPVP", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
+SSPVP = LibStub("AceAddon-3.0"):NewAddon("SSPVP", "AceEvent-3.0", "AceTimer-3.0")
 
 local L = SSPVPLocals
 
@@ -18,6 +18,8 @@ local teamTotals = {[2] = 0, [3] = 0, [5] = 0}
 local statusInfo = {}
 local queuedUpdates = {}
 local confirmPortLeave = {}
+
+if( IS_WRATH_BUILD == nil ) then IS_WRATH_BUILD = (select(4, GetBuildInfo()) >= 30000) end
 
 function SSPVP:OnInitialize()
 	self.defaults = {
@@ -71,7 +73,9 @@ function SSPVP:OnInitialize()
 	self.revision = max(self.revision, SSPVPRevision)
 	
 	-- SSPVP slash commands
-	self:RegisterChatCommand("sspvp", function(input)
+	SLASH_SSPVP1 = "/sspvp"
+	SlashCmdList["SSPVP"] = function(input)
+		input = string.lower(input or "")
 		if( input == "suspend" ) then
 			if( suspendMod ) then
 				self:DisableSuspense()
@@ -90,15 +94,8 @@ function SSPVP:OnInitialize()
 			DEFAULT_CHAT_FRAME:AddMessage(L["SSPVP slash commands"])
 			DEFAULT_CHAT_FRAME:AddMessage(L[" - suspend - Suspends auto join and leave for 5 minutes, or until you log off."])
 			DEFAULT_CHAT_FRAME:AddMessage(L[" - ui - Opens the OptionHouse configuration for SSPVP."])
-			DEFAULT_CHAT_FRAME:AddMessage(L[" - Other slash commands"])
-			DEFAULT_CHAT_FRAME:AddMessage(L[" - /arena - Easy Arena calculations and conversions"])
 		end
 	end)
-
-	-- Not the funnest method, but Blizzard requires us to call this to get arena team info
-	for i=1, MAX_ARENA_TEAMS do
-		ArenaTeamRoster(i)
-	end
 end
 
 function SSPVP:OnEnable()

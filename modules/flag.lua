@@ -3,11 +3,10 @@ Flag.activeIn = "bg"
 
 local L = SSPVPLocals
 local carriers = {["Alliance"] = {}, ["Horde"] = {}}
-local allianceUpdate = -1
-local hordeUpdate = -1
-local partyUpdate = 0
-local HEALTH_TIMEOUT = 10
-local healthMonitor = CreateFrame("Frame")
+local buttons = {}
+
+local raidUnits, raidTargetUnits, partyUnits, partyTargetUnits = {}, {}, {}, {}
+local respawnTimes = {["wsg"] = 21, ["eots"] = 10}
 
 function Flag:OnInitialize()
 	self.defaults = {
@@ -31,297 +30,176 @@ function Flag:OnInitialize()
 		},
 	}
 	
-	self.db = SSPVP.db:RegisterNamespace("flag", self.defaults)	
-	playerName = UnitName("player")
-	healthMonitor:Hide()
+	self.db = LibStub:GetLibrary("AceDB-3.0"):New("FlagDB", self.defaults)
+		
+	-- Store these so we don't have to keep concating 500 times
+	for i=1, MAX_RAID_MEMBERS do
+		raidUnits[i] = "raid" .. i
+		raidTargetUnits[i] = "raid" .. i .. "target"
+	end
+	
+	for i=1, MAX_PARTY_MEMBERS do
+		partyUnits[i] = "party" .. i
+		partyTargetUnits[i] = "party" .. i .. "target"
+	end
 end
 
 function Flag:EnableModule(abbrev)
-	-- Flags are only used inside EoTS and WSG currently
-	if( ( abbrev ~= "eots" and abbrev ~= "wsg" ) or not self.db.profile[abbrev].enabled ) then
+	-- Flag are only used inside EoTS and WSG currently
+	if( not self.db.profile[abbrev] or not self.db.profile[abbrev].enabled ) then
 		self.isActive = nil
 		return
 	end
 	
 	self.activeBF = abbrev
-		
+	
+	self:CreateButton(1)
+	self:CreateButton(2)
+
+	-- Start health scans
+	self.frame:Show()
+	
+	-- For now, it's consistant. Alliance is always up #1, Horde is always up #2
+	-- If the WoTLK battlegrounds change this, then this will have to get updated
+	buttons[1].type = "Alliance"
+	self.Alliance = buttons[1]
+	
+	buttons[2].type = "Horde"
+	self.Horde = buttons[2]
+	
 	self:RegisterEvent("CHAT_MSG_BG_SYSTEM_HORDE", "ParseMessage")
 	self:RegisterEvent("CHAT_MSG_BG_SYSTEM_ALLIANCE", "ParseMessage")
 	self:RegisterEvent("CHAT_MSG_BG_SYSTEM_NEUTRAL", "ParseMessage")
 	self:RegisterEvent("UPDATE_BATTLEFIELD_SCORE")
 	self:RegisterEvent("UPDATE_BINDINGS")
+	self:UPDATE_BINDINGS()
 	
 	if( self.db.profile[abbrev].health ) then
 		self:RegisterEvent("UNIT_HEALTH")
 		self:RegisterEvent("PLAYER_TARGET_CHANGED")
+		self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 		self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 	end
-	
-	-- Do we have to wait for UPDATE_WORLD_STATES to position?
-	self:CreateButtons()
-	if( not self.Alliance or not self.Horde ) then
-		self:ScheduleRepeatingTimer("CheckButtons", 0.25)
-	else
-		self:UpdateAllAttributes()
-	end
-	
-	-- Start checking for health updates
-	healthMonitor:Show()
 end
 
+-- Left a battlefield
 function Flag:DisableModule()
-	-- Stop checking
-	healthMonitor:Hide()
-
-	-- Reset saved info
-	for k in pairs(carriers["Alliance"]) do
-		carriers["Alliance"][k] = nil
+	self.activeBF = nil
+	
+	-- Reset
+	for faction, data in pairs(carriers) do
+		for key in pairs(data) do
+			data[key] = nil
+		end
+		
+		self:Hide(faction)
 	end
 	
-	for k, v in pairs(carriers["Horde"]) do
-		carriers["Horde"][k] = nil
-	end
-
-	self:UnregisterAllEvents()
+	-- Stop health updates
+	self.frame:Hide()
 	
+	-- Clear SSOverlay
 	SSOverlay:RemoveCategory("timer")
-	SSPVP:UnregisterOOCUpdate("UpdateAllAttributes")
-	SSPVP:UnregisterOOCUpdate("UpdateStatus")
-
-	if( not InCombatLockdown() ) then
-		self:Hide("Horde")
-		self:Hide("Alliance")
-	else
-		SSPVP:RegisterOOCUpdate(self, "UpdateStatus")
-	end
+	
+	self:UnregisterAllEvents()
+	self:OnEnable()
 end
 
-function Flag:Reload()
-	if( self.activeBF and self.db.profile[self.activeBF].health and self.isActive ) then
-		self:RegisterEvent("UNIT_HEALTH")
-		self:RegisterEvent("PLAYER_TARGET_CHANGED")
-		self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-	else
-		self:UnregisterEvent("UNIT_HEALTH")
-		self:UnregisterEvent("PLAYER_TARGET_CHANGED")
-		self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
-	end
-	
-	if( self.isActive ) then
-		self:UpdateCarrier("Alliance")
-		self:UpdateCarrier("Horde")
-	end
+function Flag:Print(msg)
+	DEFAULT_CHAT_FRAME:AddMessage("|cFF33FF99Flag|r: " .. msg)
 end
 
 -- Update carriers incase we have class
 function Flag:UPDATE_BATTLEFIELD_SCORE()
-	if( carriers["Alliance"].name ) then
-		self:UpdateCarrier("Alliance", true)
-	end
-	
-	if( carriers["Horde"].name ) then
-		self:UpdateCarrier("Horde", true)
-	end
-end
-
--- Check if it's time to do a position
-function Flag:CheckButtons()
-	self:CreateButtons()
-	if( self.Alliance and self.Horde ) then
-		self:UpdateAllAttributes()
-		self:CancelTimer("CheckButtons", true)
-	end
-end
-
--- Scan unit updates
-function Flag:UNIT_HEALTH(event, unit)
-	self:UpdateHealth(unit)
-end
-
-function Flag:UPDATE_MOUSEOVER_UNIT()
-	self:UpdateHealth("mouseover")
-end
-
-function Flag:PLAYER_TARGET_CHANGED()
-	self:UpdateHealth("target")
-end
-
--- Scan raid targets
-function Flag:ScanParty()
-	for i=1, GetNumRaidMembers() do
-		local unit = "raid" .. i
-		self:UpdateHealth(unit)
-		self:UpdateHealth(unit .. "target")
-	end
-end
-
--- Update health
-function Flag:UpdateHealth(unit)
-	if( not UnitExists(unit) or not UnitFactionGroup(unit) ) then
-		return
-	end
-
-	local name = UnitName(unit)
-	local faction = UnitFactionGroup(unit)
-	if( carriers[faction].name == name ) then
-		carriers[faction].health = floor((UnitHealth(unit) / UnitHealthMax(unit) * 100) + 0.5)
-		
-		self:UpdateCarrier(faction)
-		
-		if( faction == "Alliance" ) then
-			allianceUpdate = HEALTH_TIMEOUT
-		else
-			hordeUpdate = HEALTH_TIMEOUT
+	for faction, data in pairs(carriers) do
+		if( data.name ) then
+			self:UpdateCarrier(faction)
 		end
 	end
 end
 
--- Check if we can still get health updates from them
-function Flag:IsTargeted(name)
-	-- Check if it's our target or mouseover
-	if( UnitName("target") == name or UnitName("mouseover") == name or UnitName("focus") == name ) then
-		return true
-	end
-	
-	-- Scan raid member targets, and raid member targets of target
-	for i=1, GetNumRaidMembers() do
-		local unit = "raid" .. i
-		local target = unit .. "target"
-		
-		if( UnitExists(unit) and UnitName(unit) == name ) then
-			return true
-		elseif( UnitExists(target) and UnitName(target) == name ) then
-			return true
-		end
-	end
-	
-	-- Scan party member targets, and party member targets of target
-	for i=1, GetNumPartyMembers() do
-		local unit = "party" .. i
-		local target = unit .. "target"
-		
-		if( UnitExists(unit) and UnitName(unit) == name ) then
-			return true
-		elseif( UnitExists(target) and UnitName(target) == name ) then
-			return true
-		end
-	end
-	
-	return nil
-end
-
--- More then HEALTH_TIMEOUT seconds without updates means they're too far away
-function Flag:ResetHealth(type)
-	-- If we still have them targeted, don't reset timeout
-	if( self:IsTargeted(carriers[type].name) ) then
-		if( type == "Alliance" ) then
-			allianceUpdate = HEALTH_TIMEOUT
-		else
-			hordeUpdate = HEALTH_TIMEOUT
-		end
-		return
-	end
-
-	if( carriers[type] and carriers[type].health) then
-		carriers[type].health = nil
-		self:UpdateCarrier(type)
+-- Can't pass arguments to our OOC updater so update them all
+function Flag:UpdateAllCarriers()
+	for faction in pairs(carriers) do
+		self:UpdateCarrierAttributes(faction)
 	end
 end
 
-function Flag:UpdateAllAttributes()
-	self:UpdateCarrierAttributes("Alliance")
-	self:UpdateCarrierAttributes("Horde")
-end
-
--- We split these into two different functions, so we can do color/text/health updates
--- while in combat, but update targeting when out of it
+-- We split these into two different functions, so we can do color/text/health updates while in combat, but update targeting when out of it
 function Flag:UpdateCarrierAttributes(faction)
 	-- Carrier changed but we can't update it yet
 	local carrier = carriers[faction].name
-	if( self[faction].carrier ~= carrier ) then
-		self[faction]:SetAlpha(0.75)
+	local button = self[faction]
+	if( button.carrier ~= carrier ) then
+		button:SetAlpha(0.75)
 	else
-		self[faction]:SetAlpha(1.0)
+		button:SetAlpha(1.0)
 	end
 	
 	-- In combat, can't change anything
 	if( InCombatLockdown() ) then
-		SSPVP:RegisterOOCUpdate(self, "UpdateAllAttributes")
+		SSPVP:RegisterOOCUpdate(self, "UpdateAllCarriers")
 		return
 	end
 
-	-- This should be changed later, to automatically position to the icon
-	-- button if it's being used for PvP objectives
-	local posFrame
-	local posY = 0
-	if( self.activeBF == "eots" ) then
-		posY = 5
-		if( faction == "Alliance" ) then
-			posFrame = AlwaysUpFrame1Text
-		else
-			posFrame = AlwaysUpFrame2Text
-		end
-	elseif( self.activeBF == "wsg" ) then
-		posY = 13
-		
-		-- If we're updating an Alliance carrier, then show it at the Horde button
-		-- also, position at the dynamic icon instead of the text
-		if( faction == "Alliance" ) then
-			posFrame = AlwaysUpFrame1DynamicIconButton
-		else
-			posFrame = AlwaysUpFrame2DynamicIconButton
-		end
-	end
-	
-	-- Cannot position, it's likely this is due to the always up frames not being created yet
-	if( not posFrame ) then
-		return nil
-	end
-		
-	self[faction].carrier = carrier
-	self[faction]:ClearAllPoints()
-	self[faction]:SetPoint("LEFT", UIParent, "BOTTOMLEFT", posFrame:GetRight() + 8, posFrame:GetTop() - posY)
-	self[faction]:SetAttribute("type", "macro")
-	self[faction]:SetAttribute("macrotext", string.gsub(self.db.profile[self.activeBF].macro, "*name", carrier or ""))
+	button.carrier = carrier
+	button:SetAttribute("type", "macro")
+	button:SetAttribute("macrotext", string.gsub(self.db.profile[self.activeBF].macro, "*name", carrier or ""))
 end
 
-function Flag:UpdateCarrier(faction, skipAttrib)
-	if( not skipAttrib ) then
-		self:UpdateCarrierAttributes(faction)
-	end
-	
-	-- No carrier, hide it, this is bad
-	local carrier = carriers[faction].name
-	if( not carrier ) then
+function Flag:UpdateCarrier(faction)
+	-- Check if we have a carrier
+	local carrier = carriers[faction]
+	if( not carrier.name ) then
 		self:Hide(faction)
 		return
 	end
 		
-	local health = ""
-	if( carriers[faction].health and self.db.profile[self.activeBF].health and type(carriers[faction].health) == "number" ) then
-		health = " |cffffffff[" .. carriers[faction].health .. "%]|r"
+	local button = self[faction]
+	if( carrier.health ) then
+		button.text:SetFormattedText("%s |cffffffff[%d%%]|r", carrier.name, carrier.health)		
+	else
+		button.text:SetText(carrier.name)
 	end
-	
-	self[faction].text:SetText(carrier .. health)
 
 	-- Carrier class color if enabled/not set
-	if( self[faction].colorSet ~= carrier and self.db.profile[self.activeBF].color ) then
+	if( button.colorSet ~= carrier.name and self.db.profile[self.activeBF].color ) then
 		for i=1, GetNumBattlefieldScores() do
 			local name, _, _, _, _, _, _, _, _, classToken = GetBattlefieldScore(i)
 			
-			if( string.match(name, "^" .. carrier) ) then
-				self[faction].text:SetTextColor(RAID_CLASS_COLORS[classToken].r, RAID_CLASS_COLORS[classToken].g, RAID_CLASS_COLORS[classToken].b)
-				self[faction].colorSet = carrier
+			if( self:StripServer(name) == carrier.name ) then
+				button.text:SetTextColor(RAID_CLASS_COLORS[classToken].r, RAID_CLASS_COLORS[classToken].g, RAID_CLASS_COLORS[classToken].b)
+				button.colorSet = carrier.name
 				break
 			end
 		end
 	end
 		
 	-- Update the color to the default because we couldn't find one
-	if( self[faction].colorSet ~= carrier ) then
-		self[faction].text:SetTextColor(GameFontNormal:GetTextColor())
+	if( button.colorSet ~= carrier.name ) then
+		button.text:SetTextColor(GameFontNormal:GetTextColor())
 	end
 end
+
+function Flag:StripServer(text)
+	local name, server = string.match(text, "(.-)%-(.*)$")
+	if( not name and not server ) then
+		return text
+	end
+	
+	return name
+end
+
+function Flag:GetFactionColor(faction)
+	if( faction == "Alliance" ) then
+		return ChatTypeInfo["BG_SYSTEM_ALLIANCE"]
+	elseif( faction == "Horde" ) then
+		return ChatTypeInfo["BG_SYSTEM_HORDE"]
+	end
+	
+	return ChatTypeInfo["BG_SYSTEM_NEUTRAL"]
+end
+
 
 -- Parse event for changes
 function Flag:ParseMessage(event, msg)
@@ -370,25 +248,20 @@ end
 
 -- Flag captured = time reset as well
 function Flag:Captured(faction)
-	if( self.db.profile[self.activeBF].respawn ) then
-		if( self.activeBF == "eots" ) then
-			SSOverlay:RegisterTimer("respawn", "timer", L["Flag Respawn: %s"], 10, SSPVP:GetFactionColor("Neutral"))
-		else
-			SSOverlay:RegisterTimer("respawn", "timer", L["Flag Respawn: %s"], 21, SSPVP:GetFactionColor("Neutral"))
-		end
+	if( self.db.profile[self.activeBF].respawn and respawnTimes[self.activeBF] ) then
+		SSOverlay:RegisterTimer("respawn", "timer", L["Flag Respawn: %s"], respawnTimes[self.activeBF], self:GetFactionColor(faction))
 	end
 	
-	-- Remove held time, show time taken to capture
 	SSOverlay:RemoveRow(faction .. "time")
-	
 	if( carriers[faction].time ) then
 		SSOverlay:RegisterText(faction .. "capture", "timer", string.format(L["Capture Time: %s"], SecondsToTime(GetTime() - carriers[faction].time)), SSPVP:GetFactionColor(faction))
 	end
-	
+
 	-- Clear out
 	carriers[faction].time = nil
 	carriers[faction].name = nil
 	carriers[faction].health = nil
+	
 	self:Hide(faction)
 end
 
@@ -396,7 +269,7 @@ function Flag:Dropped(faction)
 	carriers[faction].name = nil
 	carriers[faction].health = nil
 	SSOverlay:RemoveRow(faction .. "time")
-	
+
 	self:Hide(faction)
 end
 
@@ -415,68 +288,121 @@ function Flag:PickUp(faction, name)
 		carriers[faction].time = GetTime()
 	end
 	
-	SSOverlay:RegisterElapsed(faction .. "time", "timer", L["Held Time: %s"], GetTime() - carriers[faction].time, SSPVP:GetFactionColor(faction))
-		
+	SSOverlay:RegisterElapsed(faction .. "time", "timer", L["Held Time: %s"], GetTime() - carriers[faction].time, Flag:GetFactionColor(faction))
 	self:Show(faction)
 end
 
--- Update everything, we do this here instead of specifics
--- so if we drop the flag, then pick it up in combat it won't show it, then hide
+-- Update visibility based on what we have picked up
 function Flag:UpdateStatus()
-	if( carriers["Alliance"].name ) then
-		self:Show("Alliance")
-	else
-		self:Hide("Alliance")
-	end
-	
-	if( carriers["Horde"].name ) then
-		self:Show("Horde")
-	else
-		self:Hide("Horde")
+	for key, data in pairs(carriers) do
+		if( data.name ) then
+			self:Show(key)
+		else
+			self:Hide(key)
+		end
 	end
 end
 
 -- Show flag
 function Flag:Show(faction)
-	if( not faction or not self[faction] ) then
-		return
-	end
-	
-	-- Just because flag changes in combat, doesn't mean 
-	-- we can't change name and such information
 	self:UpdateCarrier(faction)
-		
+	
+	local button = self[faction]
 	if( InCombatLockdown() ) then
-		self[faction]:SetAlpha(0.75)
+		button:SetAlpha(0.75)
 		SSPVP:RegisterOOCUpdate(self, "UpdateStatus")
 	else
-		self[faction]:SetAlpha(1.0)
-		self[faction]:Show()
+		self:UpdateCarrierAttributes(faction)
+		button:SetAlpha(1.0)
+		button:Show()
 	end
 end
 
 -- Hide flag
 function Flag:Hide(faction)
-	if( not faction or not self[faction] ) then
-		return
-	end
-
+	local button = self[faction]
 	if( InCombatLockdown() ) then
-		self[faction]:SetAlpha(0.75)
+		button:SetAlpha(0.75)
 		SSPVP:RegisterOOCUpdate(self, "UpdateStatus")
 	else
-		self[faction].carrier = nil
-		self[faction]:Hide()
+		button.carrier = nil
+		button:Hide()
 	end
 end
 
--- Update bindings
+-- Carrier targeting
+local function carrierPostClick(self)
+	local faction = self.type
+	if( not carriers[faction].name ) then
+		return
+	end
+
+	if( self:GetAlpha() ~= 1.0 ) then
+		UIErrorsFrame:AddMessage(string.format(L["Cannot target %s, in combat"], carriers[faction].name), 1.0, 0.1, 0.1, 1.0)
+	elseif( UnitExists("target") and UnitName("target") == carriers[faction].name ) then
+		UIErrorsFrame:AddMessage(string.format(L["Targetting %s"], carriers[faction].name), 1.0, 0.1, 0.1, 1.0)
+	else
+		UIErrorsFrame:AddMessage(string.format(L["%s is out of range"], carriers[faction].name), 1.0, 0.1, 0.1, 1.0)
+	end
+end
+
+-- Create our target buttons
+function Flag:CreateButton(id)
+	local button = CreateFrame("Button", "SSFlag" .. id, UIParent, "SecureActionButtonTemplate")
+	button:SetHeight(25)
+	button:SetWidth(150)
+	button:RegisterForClicks("AnyUp")
+	button:SetScript("PostClick", carrierPostClick)
+
+	button.text = button:CreateFontString(nil, "BACKGROUND")
+	button.text:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)
+	button.text:SetFont((GameFontNormal:GetFont()), 11)
+	button.text:SetShadowOffset(1, -1)
+	button.text:SetShadowColor(0, 0, 0, 1)
+	button.text:SetJustifyH("LEFT")
+	button.text:SetHeight(25)
+	button.text:SetWidth(150)
+	
+	buttons[id] = button
+end
+
+function Flag:PositionButtons()
+	if( InCombatLockdown() ) then
+		SSPVP:RegisterOOCUpdate(self, "PositionButtons")
+		return
+	end
+
+	for i=1, NUM_ALWAYS_UP_UI_FRAMES do
+		local dynamicIcon = getglobal(string.format("AlwaysUpFrame%dDynamicIconButtonIcon", i))
+		if( dynamicIcon and buttons[i] ) then
+			if( dynamicIcon:GetTexture() ) then
+				buttons[i]:ClearAllPoints()
+				buttons[i]:SetPoint("LEFT", UIParent, "BOTTOMLEFT", dynamicIcon:GetRight() + 6, dynamicIcon:GetTop() - 13)
+			else
+				local text = getglobal(string.format("AlwaysUpFrame%dText", i))
+				buttons[i]:ClearAllPoints()
+				buttons[i]:SetPoint("LEFT", UIParent, "BOTTOMLEFT", text:GetRight() + 8, text:GetTop() - 5)
+			end
+		end
+	end
+end
+
+-- Ensure that the buttons will always be positioned on the always up frame
+local Orig_WorldStateAlwaysUpFrame_Update = WorldStateAlwaysUpFrame_Update
+function WorldStateAlwaysUpFrame_Update(...)
+	Orig_WorldStateAlwaysUpFrame_Update(...)
+	
+	if( Flag.activeBF ) then
+		Flag:PositionButtons()
+	end
+end
+
+-- BINDINGS
 function Flag:UPDATE_BINDINGS()
 	if( InCombatLockdown() ) then
 		SSPVP:RegisterOOCUpdate(self, "UPDATE_BINDINGS")
 		return
 	end
-	
 
 	local friendlyFaction, enemyFaction
 	if( UnitFactionGroup("player") == "Alliance" ) then
@@ -490,108 +416,138 @@ function Flag:UPDATE_BINDINGS()
 	-- Enemy carrier
 	local bindKey = GetBindingKey("ETARFLAG")
 	if( bindKey ) then
-		SetOverrideBindingClick(getglobal("SSFlag" .. friendlyFaction), false, bindKey, "SSFlag" .. friendlyFaction)
+		SetOverrideBindingClick(self[enemyFaction], false, bindKey, self[enemyFaction]:GetName())
 	else
-		ClearOverrideBindings(getglobal("SSFlag" .. friendlyFaction))
+		ClearOverrideBindings(self[enemyFaction])
 	end
 	
 	-- Friendly carrier
 	bindKey = GetBindingKey("FTARFLAG")
 	if( bindKey ) then
-		SetOverrideBindingClick(getglobal("SSFlag" .. enemyFaction), false, bindKey, "SSFlag" .. enemyFaction)
+		SetOverrideBindingClick(self[friendlyFaction], false, bindKey, self[friendlyFaction]:GetName())
 	else
-		ClearOverrideBindings(getglobal("SSFlag" .. enemyFaction))
+		ClearOverrideBindings(self[friendlyFaction])
 	end
 end
 
-local function carrierPostClick(self)
-	local faction = self.type
-	if( not carriers[faction].name ) then
+
+-- HEALTH UPDATES
+local HEALTH_TIMEOUT = 10
+local partyScan = 0
+local allianceTimeout, hordeTimeout
+
+function Flag:UNIT_HEALTH(event, unit)
+	self:UpdateHealth(unit)
+end
+
+function Flag:UPDATE_MOUSEOVER_UNIT()
+	self:UpdateHealth("mouseover")
+end
+
+function Flag:PLAYER_FOCUS_CHANGED()
+	self:UpdateHealth("focus")
+end
+
+function Flag:PLAYER_TARGET_CHANGED()
+	self:UpdateHealth("target")
+end
+
+-- Scan raid targets
+function Flag:ScanParty()
+	for i=1, GetNumRaidMembers() do
+		self:UpdateHealth(raidUnits[i])
+		self:UpdateHealth(raidTargetUnits[i])
+	end
+end
+
+-- Update health
+function Flag:UpdateHealth(unit)
+	if( not UnitExists(unit) or not UnitFactionGroup(unit) ) then
 		return
 	end
-	
-	if( IsAltKeyDown() and carriers[faction].name ) then
-		SSPVP:ChannelMessage(string.format(L["%s flag carrier %s, held for %s."], L[faction], carriers[faction].name, SecondsToTime(GetTime() - carriers[faction].time)))
-	end
 
-	if( self:GetAlpha() ~= 1.0 ) then
-		UIErrorsFrame:AddMessage(string.format(L["Cannot target %s, in combat"], carriers[faction].name), 1.0, 0.1, 0.1, 1.0)
-	elseif( UnitExists("target") and UnitName("target") == carriers[faction].name ) then
-		UIErrorsFrame:AddMessage(string.format(L["Targetting %s"], carriers[faction].name), 1.0, 0.1, 0.1, 1.0)
-	elseif( carriers[faction].name ) then
-		UIErrorsFrame:AddMessage(string.format(L["%s is out of range"], carriers[faction].name), 1.0, 0.1, 0.1, 1.0)
-	end
-end
-
--- Create our target buttons
-function Flag:CreateButtons()
-	if( not self.Alliance and AlwaysUpFrame1Text ) then
-		self.Alliance = CreateFrame("Button", "SSFlagAlliance", UIParent, "SecureActionButtonTemplate")
-		self.Alliance:SetHeight(25)
-		self.Alliance:SetWidth(150)
-		self.Alliance:SetPoint("LEFT", UIParent, "BOTTOMLEFT", AlwaysUpFrame1Text:GetRight() + 8, AlwaysUpFrame1Text:GetTop() - 5)
-		self.Alliance:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp", "Button4Up", "Button5Up")
-		self.Alliance.type = "Alliance"
-		self.Alliance:SetScript("PostClick", carrierPostClick)
-
-		self.Alliance.text = self.Alliance:CreateFontString(nil, "BACKGROUND")
-		self.Alliance.text:SetPoint("TOPLEFT", self.Alliance, "TOPLEFT", 0, 0)
-		self.Alliance.text:SetFont((GameFontNormal:GetFont()), 11)
-		self.Alliance.text:SetShadowOffset(1, -1)
-		self.Alliance.text:SetShadowColor(0, 0, 0, 1)
-		self.Alliance.text:SetJustifyH("LEFT")
-		self.Alliance.text:SetHeight(25)
-		self.Alliance.text:SetWidth(150)
-	end
-	
-	if( not self.Horde and AlwaysUpFrame2Text ) then
-		self.Horde = CreateFrame("Button", "SSFlagHorde", UIParent, "SecureActionButtonTemplate")
-		self.Horde:SetHeight(25)
-		self.Horde:SetWidth(150)
-		self.Horde:ClearAllPoints()
-		self.Horde:SetPoint("LEFT", UIParent, "BOTTOMLEFT", AlwaysUpFrame2Text:GetRight() + 8, AlwaysUpFrame2Text:GetTop() - 5)
-		self.Horde:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp", "Button4Up", "Button5Up")
-		self.Horde.type = "Horde"
-		self.Horde:SetScript("PostClick", carrierPostClick)
-
-		self.Horde.text = self.Horde:CreateFontString(nil, "BACKGROUND")
-		self.Horde.text:SetPoint("TOPLEFT", self.Horde, "TOPLEFT", 0, 0)
-		self.Horde.text:SetFont((GameFontNormal:GetFont()), 11)
-		self.Horde.text:SetShadowOffset(1, -1)
-		self.Horde.text:SetShadowColor(0, 0, 0, 1)
-		self.Horde.text:SetJustifyH("LEFT")
-		self.Horde.text:SetHeight(25)
-		self.Horde.text:SetWidth(150)
-	end
-	
-	if( self.Alliance and self.Horde ) then
-		self:UPDATE_BINDINGS()
-	end
-end
-
--- Handle health time outs + party scan
-healthMonitor:SetScript("OnUpdate", function(self, elapsed)
-	partyUpdate = partyUpdate + elapsed
-	if( partyUpdate >= 0.50 ) then
-		partyUpdate = 0
-		Flag:ScanParty()
-	end
-	
-	if( allianceUpdate >= 0 ) then
-		allianceUpdate = allianceUpdate - elapsed
+	local name = UnitName(unit)
+	local faction = UnitFactionGroup(unit)
+	if( carriers[faction].name == name ) then
+		carriers[faction].health = floor((UnitHealth(unit) / UnitHealthMax(unit) * 100) + 0.5)
 		
-		if( allianceUpdate <= 0 ) then
-			allianceUpdate = -1
+		self:UpdateCarrier(faction)
+		
+		if( faction == "Alliance" ) then
+			allianceTimeout = HEALTH_TIMEOUT
+		else
+			hordeTimeout = HEALTH_TIMEOUT
+		end
+	end
+end
+
+-- Check if we can still get health updates from them
+function Flag:IsTargeted(name)
+	-- Check if it's our target or mouseover
+	if( UnitName("target") == name or UnitName("mouseover") == name or UnitName("focus") == name ) then
+		return true
+	end
+	
+	-- Scan raid member targets, and raid member targets of target
+	for i=1, GetNumRaidMembers() do
+		if( ( UnitExists(raidUnits[i]) and UnitName(raidUnits[i]) == name ) or ( UnitExists(raidTargetUnits[i]) and UnitName(raidTargetUnits[i]) == name ) ) then
+			return true
+		end
+	end
+	
+	-- Scan party member targets, and party member targets of target
+	for i=1, GetNumPartyMembers() do
+		if( ( UnitExists(partyUnits[i]) and UnitName(partyUnits[i]) == name ) or ( UnitExists(partyTargetUnits[i]) and UnitName(partyTargetUnits[i]) == name ) ) then
+			return true
+		end
+	end
+	
+	return nil
+end
+
+-- More then HEALTH_TIMEOUT seconds without updates means they're too far away
+function Flag:ResetHealth(type)
+	-- If we still have them targeted, don't reset health
+	if( self:IsTargeted(carriers[type].name) ) then
+		if( type == "Alliance" ) then
+			allianceTimeout = HEALTH_TIMEOUT
+		else
+			hordeTimeout = HEALTH_TIMEOUT
+		end
+		return
+	end
+
+	if( carriers[type] and carriers[type].health ) then
+		carriers[type].health = nil
+		self:UpdateCarrier(type)
+	end
+end
+
+-- Health OnUpdate
+Flag.frame = CreateFrame("Frame")
+Flag.frame:Hide()
+
+Flag.frame:SetScript("OnUpdate", function(self, elapsed)
+	if( allianceTimeout ) then
+		allianceTimeout = allianceTimeout - elapsed
+		
+		if( allianceTimeout <= 0 ) then
+			allianceTimeout = nil
 			Flag:ResetHealth("Alliance")
 		end
 	end
 	
-	if( hordeUpdate >= 0 ) then
-		hordeUpdate = hordeUpdate - elapsed
+	if( hordeTimeout ) then
+		hordeTimeout = hordeTimeout - elapsed
 		
-		if( hordeUpdate <= 0 ) then
-			hordeUpdate = -1
+		if( hordeTimeout <= 0 ) then
+			hordeTimeout = nil
 			Flag:ResetHealth("Horde")
 		end
+	end
+	
+	partyScan = partyScan + elapsed
+	if( partyScan >= 5 ) then
+		Flag:ScanParty()
 	end
 end)
