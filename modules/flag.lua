@@ -30,7 +30,7 @@ function Flag:OnInitialize()
 		},
 	}
 	
-	self.db = LibStub:GetLibrary("AceDB-3.0"):New("FlagDB", self.defaults)
+	self.db = SSPVP.db:RegisterNamespace("flags", self.defaults)
 		
 	-- Store these so we don't have to keep concating 500 times
 	for i=1, MAX_RAID_MEMBERS do
