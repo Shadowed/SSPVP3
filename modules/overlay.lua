@@ -5,13 +5,10 @@ local L = SSPVPLocals
 local CREATED_ROWS = 0
 local MAX_ROWS = 20
 local ADDED_ENTRIES = 0
-local rows, catCount, categories, config = {}, {}, {}, {}
-local longestText, resortRows = 0
-local growUp
-local resortRows
 
-local rows = {}
-local catCount = {}
+local longestText, resortRows = 0
+local rows, catCount, savedData = {}, {}, {}
+
 local categories = {
 	["faction"] = { label = L["Faction Balance"], order = 0 },
 	["timer"] = { label = L["Timers"], order = 20 },
@@ -211,7 +208,6 @@ function SSOverlay:UpdateOverlay()
 		self:CreateFrame()
 	end
 	
-
 	if( resortRows ) then
 		table.sort(rows, sortOverlay)
 		resortRows = nil
@@ -343,16 +339,14 @@ end
 function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priority)
 	local row
 	local newRow
-	-- Grab an existing entry if we haven't deleted them yet
-	for _, data in pairs(rows) do
-		if( data.id == id ) then
-			row = data
-			break
-		end
+	
+	if( savedData[id] ) then
+		row = savedData[id]
 	end
 	
 	if( not row ) then
-		row = {}
+		savedData[id] = {}
+		row = savedData[id]
 		newRow = true
 	end
 	

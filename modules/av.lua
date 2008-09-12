@@ -73,7 +73,7 @@ function AV:PrintTimer(data)
 		return
 	end
 	
-	SSPVP:ChannelMessage(string.format(L["[%s] %s: %s"], faction, node, SecondsToTime(captureTime - GetTime())))
+	SSPVP:ChannelMessage(string.format("[%s] %s: %s", faction, node, SecondsToTime(captureTime - GetTime())))
 end
 
 function AV:StartAnnounce(name, faction)

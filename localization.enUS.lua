@@ -1,4 +1,7 @@
 SSPVPLocals = {
+	["Horde"] = "Horde",
+	["Alliance"] = "Alliance",
+
 	-- Battlefield names
 	["Warsong Gulch"] = "Warsong Gulch",
 	["Arathi Basin"] = "Arathi Basin",
@@ -9,6 +12,12 @@ SSPVPLocals = {
 	["Nagrand Arena"] = "Nagrand Arena",
 	["Ruins of Lordaeron"] = "Ruins of Lordaeron",
 	
+	["Wintergrasp"] = "Wintergrasp",
+	["Strand of the Ancients"] = "Strand of the Ancients",
+
+	["Eastern Kingdoms"] = "Eastern Kingdoms",
+	
+	-- Arena info
 	["Rated"] = "Rated",
 	["Skirmish"] = "Skirmish",
 	["Arena"] = "Arena",
@@ -17,47 +26,29 @@ SSPVPLocals = {
 	["Rated Arena"] = "Rated Arena",
 	["Skirmish Arena"] = "Skirmish Arena",
 
+	-- Auto joining
 	["You are now in the queue for %s Arena (%dvs%d)."] = "You are now in the queue for %s Arena (%dvs%d).",
 	["You are now in the queue for %s."] = "You are now in the queue for %s.",
 	
 	["Higher priority battlefield ready, auto joining %s in %d seconds."] = "Higher priority battlefield ready, auto joining %s in %d seconds.",
-	["Your current activity is a higher priority then %s, not auto joining."] = "Your current activity is a higher priority then %s, not auto joining.",
+	["Your current activity is a higher priority than %s, not auto joining."] = "Your current activity is a higher priority than %s, not auto joining.",
 	["You have the battlefield entry window hidden for %s, will not auto join."] = "You have the battlefield entry window hidden for %s, will not auto join.",
-	
-	["%s %d points (%d rating)"] = "%s %d points (%d rating)",
-	["/ %d personal (%d rating)"] = "/ %d personal (%d rating)",
 	
 	["You are about to leave the active or queued arena %s (%dvs%d), are you sure?"] = "You are about to leave the active or queued arena %s (%dvs%d), are you sure?",
 	["You are about to leave the active or queued battleground %s, are you sure?"] = "You are about to leave the active or queued battleground %s, are you sure?",
 	
-	["Horde"] = "Horde",
-	["Alliance"] = "Alliance",
 	["Screenshot saved as WoWScrnShot_%s.%s."] = "Screenshot saved as WoWScrnShot_%s.%s.",
 	
-	["(L) %s"] = "(L) %s",
-	["Rating"] = "Rating",
-	
 	["Unknown"] = "Unknown",
+	["the raid group.$"] = "the raid group.$",
 	
 	["Releasing..."] = "Releasing...",
 	["Using %s..."] = "Using %s...",
-	
 	["Starting: %s"] = "Starting: %s",
-	
-	["Preparation"] = "Preparation",
-	
-	["the raid group.$"] = "the raid group.$",
-	["|Hplayer:(.+)|h(.+)|h has joined the battle"] = "|Hplayer:(.+)|h(.+)|h has joined the battle",
-	
-	["Eastern Kingdoms"] = "Eastern Kingdoms",
 	
 	["The"] = "The",
 	
-	["Alliance"] = "Alliance",
-	["Horde"] = "Horde",
-	
-	["[%s] %s: %s"] = "[%s] %s: %s",
-	
+	-- Overlay
 	["Unavailable"] = "Unavailable",
 	["<1 Min"] = "<1 Min",
 	["Disabled"] = "Disabled",
@@ -66,10 +57,7 @@ SSPVPLocals = {
 	["%s |cffffffff(%dvs%d)|r"] = "%s |cffffffff(%dvs%d)|r",
 	["Flag Respawn: %s"] = "Flag Respawn: %s",
 	["Auto release disabled, %d %s until release"] = "Auto release disabled, %d %s until release",
-	
-	["%d personal rating in %s (%dvs%d)"] = "%d personal rating in %s (%dvs%d)",
 	["%s is ready to join, auto leave disabled."] = "%s is ready to join, auto leave disabled.",
-	["Bugged or drawn game, no rating changed."] = "Bugged or drawn game, no rating changed.",
 	
 	-- Modified queue window
 	["You are now eligible to enter %s. %s left to join."] = "You are now eligible to enter %s. %s left to join.",
@@ -80,21 +68,11 @@ SSPVPLocals = {
 	["Score objectives anchor"] = "Score objectives anchor",
 	["Left Click + Drag to move the frame, Right Click + Drag to reset it to it's original position."] = "Left Click + Drag to move the frame, Right Click + Drag to reset it to it's original position.",
 	
-	-- Win API is broken /wrist
-	["The Horde wins"] = "The Horde wins",
-	["The Alliance wins"] = "The Alliance wins",
-	
 	-- So we don't auto leave before completing
 	["Call to Arms: %s"] = "Call to Arms: %s",
 	["You currently have the battleground daily quest for %s, auto leave has been set to occure once the quest completes."] = "You currently have the battleground daily quest for %s, auto leave has been set to occure once the quest completes.",
 	
-	-- Modified arena info
-	["Season"] = "Season",
-	["Week"] = "Week",
-	
 	-- Flags
-	["%s flag carrier %s, held for %s."] = "%s flag carrier %s, held for %s.",
-	
 	["was picked up by (.+)!"] = "was picked up by (.+)!",
 	["captured the"] = "captured the",
 	["was dropped by (.+)!"] = "was dropped by (.+)!",
@@ -118,6 +96,8 @@ SSPVPLocals = {
 	["%s (%d players)"] = "%s (%d players)",
 	["Servers"] = "Servers",
 	["Classes"] = "Classes",
+	
+	-- Wintergrasp
 	
 	-- Arathi basin
 	["claims the ([^!]+)"] = "claims the ([^!]+)",

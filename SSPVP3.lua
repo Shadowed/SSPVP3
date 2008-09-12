@@ -12,12 +12,10 @@ SSPVP = LibStub("AceAddon-3.0"):NewAddon("SSPVP", "AceEvent-3.0", "AceTimer-3.0"
 
 local L = SSPVPLocals
 
-local activeBF, activeID, joinID, joinAt, joinPriority, screenTaken, suspendMod
+local activeBF, activeID, screenTaken, suspendMod
 
 local teamTotals = {[2] = 0, [3] = 0, [5] = 0}
-local statusInfo = {}
-local queuedUpdates = {}
-local confirmPortLeave = {}
+local statusInfo, queuedUpdates, confirmPortLeave, join, queueID = {}, {}, {}, {}, {}
 
 if( IS_WRATH_BUILD == nil ) then IS_WRATH_BUILD = (select(4, GetBuildInfo()) >= 30000) end
 
@@ -93,6 +91,15 @@ function SSPVP:OnInitialize()
 			DEFAULT_CHAT_FRAME:AddMessage(L[" - ui - Opens the configuration for SSPVP."])
 		end
 	end
+	
+	for i=1, MAX_BATTLEFIELD_QUEUES do
+		queueID[i] = "queue" .. i
+	end
+
+	-- Try and make sure arena info is up to date
+	for i=1, MAX_ARENA_TEAMS do
+		ArenaTeamRoster(i)
+	end
 end
 
 function SSPVP:OnEnable()
@@ -139,7 +146,7 @@ function SSPVP:BATTLEFIELDS_SHOW()
 	end
 	
 	-- Auto select an option in arena queue depending on teammates
-	if( IsBattlefieldArena() and GetNumPartyMembers() > 0 and IsPartyLeader() ) then
+	if( IsBattlefieldArena() and IsPartyLeader() ) then
 		for _, total in pairs(teamTotals) do
 			total = 0
 		end
@@ -175,7 +182,6 @@ function SSPVP:BATTLEFIELDS_SHOW()
 		ArenaFrame_Update()
 	end
 
-		
 	-- Auto queue
 	if( self.db.profile.auto.solo and ( GetNumPartyMembers() == 0 and GetNumRaidMembers() == 0 or IsAltKeyDown() ) ) then
 		JoinBattlefield(GetSelectedBattlefield())
@@ -216,19 +222,19 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 				end
 								
 				-- No queue timer going
-				if( not joinID ) then
-					joinID = i
-					joinAt = GetTime() + delay
-					joinPriority = priority
+				if( not join.id ) then
+					join.id = i
+					join.at = GetTime() + delay
+					join.priority = priority
 					
 					self:ScheduleTimer("JoinBattlefield", delay)
 					
 				-- Check if priority is higher
-				elseif( joinID ~= i and self.db.profile.join.enabled ) then
-					if( ( self.db.profile.join.priority == "less" and joinPriority < priority ) or ( self.db.profile.join.priority == "lseql" and joinPriority <= priority ) ) then
-						joinID = i
-						joiningAt = GetTime() + delay
-						joinPriority = priority
+				elseif( join.id ~= i and self.db.profile.join.enabled ) then
+					if( ( self.db.profile.join.priority == "less" and join.priority < priority ) or ( self.db.profile.join.priority == "lseql" and join.priority <= priority ) ) then
+						join.id = i
+						join.at = GetTime() + delay
+						join.priority = priority
 						
 						self:CancelTimer("JoinBattlefield", true)
 						self:ScheduleTimer("JoinBattlefield", delay)
@@ -302,10 +308,8 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 		end
 
 		-- We no longer have this battlefield as confirmation likely time ran out, we left queue or we joined it manually
-		if( status ~= "confirm" and joinID == i ) then
-			joinID = nil
-			joinAt = nil
-			joinPriority = nil
+		if( status ~= "confirm" and join.id == i ) then
+			self:ResetJoin()
 		end
 		
 		statusInfo[i] = status
@@ -347,8 +351,7 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 			end
 
 			if( teamSize > 0 ) then
-				-- Before arenas start you're queued for all arena maps
-				-- once queues ready, they tell us specifically what map we're going into
+				-- Before arenas start you're queued for all arena maps once queues ready, they tell us specifically what map we're going into
 				-- This is no longer the case as of 2.4.0, it'll always return Eastern Kingdoms
 				if( map == L["All Arenas"] or map == L["Eastern Kingdoms"] ) then
 					if( isRegistered ) then
@@ -362,17 +365,16 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 			end
 
 			if( status == "active" and instanceID > 0 ) then
-				SSOverlay:RegisterText("queue" .. i, "queue", map .. ": #" .. instanceID)
-			
+				SSOverlay:RegisterText(queueID[i], "queue", string.format("%s: #%d", map, instanceID))
 			elseif( status == "confirm" ) then
 				if( not self.db.profile.join.enabled ) then
-					SSOverlay:RegisterTimer("queue" .. i, "queue", map .. ": %s (" .. L["Disabled"] .. ")", GetBattlefieldPortExpiration(i) / 1000)
-				elseif( suspendMod and joinID == i ) then
-					SSOverlay:RegisterTimer("queue" .. i, "queue", map .. ": %s (" .. L["Suspended"] .. ")", GetBattlefieldPortExpiration(i) / 1000)
-				elseif( not suspendMod and joinID == i ) then
-					SSOverlay:RegisterTimer("queue" .. i, "queue", map .. ": " .. L["Joining"] .. " %s", joinAt - GetTime())
+					SSOverlay:RegisterTimer(queueID[i], "queue", string.format("%s: %s (%s)", map, "%s", L["Disabled"]), GetBattlefieldPortExpiration(i) / 1000)
+				elseif( suspendMod and join.id == i ) then
+					SSOverlay:RegisterTimer(queueID[i], "queue", string.format("%s: %s (%s)", map, "%s", L["Suspended"]), GetBattlefieldPortExpiration(i) / 1000)
+				elseif( not suspendMod and join.id == i ) then
+					SSOverlay:RegisterTimer(queueID[i], "queue", string.format("%s: %s %s", map, L["Joining"], "%s"), join.at - GetTime())
 				else
-					SSOverlay:RegisterTimer("queue" .. i, "queue", map .. ": %s", GetBattlefieldPortExpiration(i) / 1000)
+					SSOverlay:RegisterTimer(queueID[i], "queue", string.format("%s: %s", map, "%s"), GetBattlefieldPortExpiration(i) / 1000)
 				end
 			
 			elseif( status == "queued" ) then
@@ -386,9 +388,9 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 					etaTime = L["Unavailable"]
 				end
 								
-				SSOverlay:RegisterElapsed("queue" .. i, "queue", map .. ": %s (" .. etaTime .. ")", GetBattlefieldTimeWaited(i) / 1000)
+				SSOverlay:RegisterElapsed(queueID[i], "queue", string.format("%s: %s (%s)", map, "%s", etaTime), GetBattlefieldTimeWaited(i) / 1000)
 			else
-				SSOverlay:RemoveRow("queue" .. i)
+				SSOverlay:RemoveRow(queueID[i])
 			end
 		end
 	end
@@ -478,33 +480,33 @@ function SSPVP:ScreenshotTaken()
 	end
 end
 
+function SSPVP:ResetJoin()
+	join.id = nil
+	join.at = nil
+	join.priority = nil
+end
+
 -- Now check priorities before we join the battlefield
 function SSPVP:JoinBattlefield()
-	if( not joinID or not self.db.profile.join.enabled ) then
+	if( not join.id or not join.priority or not self.db.profile.join.enabled ) then
 		return
 	end
 	
 	-- Not auto joining still for 5 minutes
 	if( suspendMod ) then
-		joinID = nil
-		joinAt = nil
-		joinPriority = nil
-		
+		self:ResetJoin()
 		self:Print(L["Suspension is still active, will not auto join or leave."])
 		return
 	end
 	
 	-- Disable auto join if the windows hidden
-	if( self.db.profile.join.window and ( ( not StaticPopupDialogs["CONFIRM_NEW_BFENTRY"] and not StaticPopup_FindVisible("CONFIRM_BATTLEFIELD_ENTRY", joinID) ) or ( StaticPopupDialogs["CONFIRM_NEW_BFENTRY"] and not StaticPopup_FindVisible("CONFIRM_NEW_BFENTRY", joinID) ) ) ) then
-		self:Print(string.format(L["You have the battlefield entry window hidden for %s, will not auto join."], (GetBattlefieldStatus(joinID))))
-
-		joinID = nil
-		joinAt = nil
-		joinPriority = nil
+	if( self.db.profile.join.window and ( ( not StaticPopupDialogs["CONFIRM_NEW_BFENTRY"] and not StaticPopup_FindVisible("CONFIRM_BATTLEFIELD_ENTRY", join.id) ) or ( StaticPopupDialogs["CONFIRM_NEW_BFENTRY"] and not StaticPopup_FindVisible("CONFIRM_NEW_BFENTRY", join.id) ) ) ) then
+		self:Print(string.format(L["You have the battlefield entry window hidden for %s, will not auto join."], (GetBattlefieldStatus(join.id))))
+		self:ResetJoin()
 		return
 	end
 	
-	local priority
+	local priority = self.db.profile.priorities.none
 	local instance, type = IsInInstance()
 	
 	-- Figure out our current priority
@@ -517,29 +519,21 @@ function SSPVP:JoinBattlefield()
 			priority = self.db.profile.priorities.skirmArena
 		end
 	elseif( activeBF and type == "pvp" ) then
-		priority = self.db.profile.priorities[self:GetAbbrev(activeBF)]
+		priority = self.db.profile.priorities[self:GetAbbrev(activeBF)] or self.db.profile.priorities.none
 	elseif( instance ) then
 		priority = self.db.profile.priorities.instance
 	elseif( GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0 ) then
 		priority = self.db.profile.priorities.group
-	else			
-		priority = self.db.profile.priorities.none
-	end
-	
-	if( not priority or not joinPriority ) then
-		return
 	end
 	
 	-- Make sure we can auto join
-	if( ( self.db.profile.join.priority == "less" and priority < joinPriority ) or ( self.db.profile.join.priority == "lseql" and priority <= joinPriority ) ) then
-		self:Print(string.format(L["Your current activity is a higher priority then %s, not auto joining."], select(2, GetBattlefieldStatus(joinID))))
+	if( ( self.db.profile.join.priority == "less" and priority < join.priority ) or ( self.db.profile.join.priority == "lseql" and priority <= join.priority ) ) then
+		self:Print(string.format(L["Your current activity is a higher priority than %s, not auto joining."], select(2, GetBattlefieldStatus(join.id))))
 	else
-		AcceptBattlefieldPort(joinID, true)
+		AcceptBattlefieldPort(join.id, true)
 	end
 
-	joinID = nil
-	joinAt = nil
-	joinPriority = nil
+	self:ResetJoin()
 end
 
 -- For playing sound
@@ -581,6 +575,10 @@ function SSPVP:GetAbbrev(map)
 		return "eots"
 	elseif( map == L["Eastern Kingdoms"] or map == L["Blade's Edge Arena"] or map == L["Nagrand Arena"] or map == L["Ruins of Lordaeron"] ) then
 		return "arena"
+	elseif( map == L["Wintergrasp"] ) then
+		return "wg"
+	elseif( map == L["Strand of the Ancients"] ) then
+		return "sota"
 	end
 	
 	return ""

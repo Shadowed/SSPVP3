@@ -45,7 +45,7 @@ function AB:PrintTimer(node, captureTime, faction)
 		faction = L["Alliance"]
 	end
 	
-	SSPVP:ChannelMessage(string.format(L["[%s] %s: %s"], faction, node, SecondsToTime(captureTime - GetTime())))
+	SSPVP:ChannelMessage(string.format("[%s] %s: %s", faction, node, SecondsToTime(captureTime - GetTime())))
 end
 
 function AB:ParseCombat(event, msg)
