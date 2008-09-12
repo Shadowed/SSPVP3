@@ -8,9 +8,6 @@ local classes = {}
 
 local classColors = {}
 
-local scoresRepositioned
-local playerName
-
 function Score:OnInitialize()
 	self.defaults = {
 		profile = {
@@ -21,7 +18,6 @@ function Score:OnInitialize()
 	}
 	
 	self.db = SSPVP.db:RegisterNamespace("score", self.defaults)	
-	playerName = UnitName("player")
 	
 	for class, color in pairs(RAID_CLASS_COLORS) do
 		classColors[class] = string.format("|cff%02x%02x%02x", color.r * 255, color.g * 255, color.b * 255)

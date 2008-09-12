@@ -717,6 +717,21 @@ function SSPVP:RegisterOOCUpdate(self, func)
 	end
 end
 
+-- Battlefield list
+local list
+function SSPVP:GetBattlefieldList()
+	if( not list ) then
+		list = {["arena"] = L["Arena"], ["eots"] = L["Eye of the Storm"], ["wsg"] = L["Warsong Gulch"], ["ab"] = L["Arathi Basin"], ["av"] = L["Alterac Valley"]}
+	end
+	
+	-- Add WoTLK battlegrounds here eventually
+	if( IS_WRATH_BUILD ) then
+	
+	end
+	
+	return list
+end
+
 -- Hook for confirmations on leaving
 -- Leaving queues, or hitting leave battlefield through minimap
 local Orig_AcceptBattlefieldPort = AcceptBattlefieldPort

@@ -204,7 +204,7 @@ local function buildPriorities()
 	return priorities
 end
 
-local battlefields = {["arena"] = L["Arena"], ["eots"] = L["Eye of the Storm"], ["wsg"] = L["Warsong Gulch"], ["ab"] = L["Arathi Basin"], ["av"] = L["Alterac Valley"]}
+local battlefields = SSPVP:GetBattlefieldList()
 local channels = {["BATTLEGROUND"] = L["Battleground"], ["RAID"] = L["Raid"], ["PARTY"] = L["Party"]}
 
 function loadOptions()
