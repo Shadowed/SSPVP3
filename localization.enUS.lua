@@ -1,4 +1,6 @@
 SSPVPLocals = {
+	["0 Sec"] = "0 Sec",
+	
 	["Horde"] = "Horde",
 	["Alliance"] = "Alliance",
 

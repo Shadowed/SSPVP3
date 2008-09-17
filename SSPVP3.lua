@@ -95,7 +95,7 @@ function SSPVP:OnInitialize()
 	for i=1, MAX_BATTLEFIELD_QUEUES do
 		queueID[i] = "queue" .. i
 	end
-
+	
 	-- Try and make sure arena info is up to date
 	for i=1, MAX_ARENA_TEAMS do
 		ArenaTeamRoster(i)
@@ -363,7 +363,7 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 				
 				map = string.format(L["%s (%dvs%d)"], map, teamSize, teamSize)
 			end
-
+			
 			if( status == "active" and instanceID > 0 ) then
 				SSOverlay:RegisterText(queueID[i], "queue", string.format("%s: #%d", map, instanceID))
 			elseif( status == "confirm" ) then

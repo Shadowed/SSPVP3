@@ -71,7 +71,7 @@ function WorldStateAlwaysUpFrame_Update(...)
 		local bases, points = string.match(AlwaysUpFrame1Text:GetText(), L["Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000"])
 		
 		if( bases and points ) then
-			alliance:SetText(string.format(L["Bases %d  Points %d/2000"], bases, points))
+			AlwaysUpFrame1Text:SetText(string.format(L["Bases %d  Points %d/2000"], bases, points))
 		end
 	end
 	
@@ -79,7 +79,7 @@ function WorldStateAlwaysUpFrame_Update(...)
 		local bases, points = string.match(AlwaysUpFrame2Text:GetText(), L["Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000"])
 
 		if( bases and points ) then
-			horde:SetText(string.format( L["Bases %d  Points %d/2000"], bases, points))
+			AlwaysUpFrame2Text:SetText(string.format( L["Bases %d  Points %d/2000"], bases, points))
 		end
 	end
 end

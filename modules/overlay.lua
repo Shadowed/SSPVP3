@@ -2,19 +2,19 @@ SSOverlay = SSPVP:NewModule("Overlay")
 
 local L = SSPVPLocals
 
-local CREATED_ROWS = 0
 local MAX_ROWS = 20
-local ADDED_ENTRIES = 0
+local ACTIVE_ROWS = 0
+local ACTIVE_CATS = 0
 
-local longestText, resortRows = 0
-local rows, catCount, savedData = {}, {}, {}
+local longestText = 0
+local timers, catCount = {}, {}
 
 local categories = {
-	["faction"] = { label = L["Faction Balance"], order = 0 },
-	["timer"] = { label = L["Timers"], order = 20 },
-	["match"] = { label = L["Match Info"], order = 30 },
-	["mine"] = { label = L["Mine Reinforcement"], order = 50 },
-	["queue"] = { label = L["Battlefield Queue"], order = 60 },
+	["faction"] = { id = "catfaction", label = L["Faction Balance"], order = 0 },
+	["timer"] = { id = "cattimer", label = L["Timers"], order = 20 },
+	["match"] = { id = "catmatch", label = L["Match Info"], order = 30 },
+	["mine"] = { id = "catmine", label = L["Mine Reinforcement"], order = 50 },
+	["queue"] = { id = "catqueue", label = L["Battlefield Queue"], order = 60 },
 }
 
 function SSOverlay:OnInitialize()
@@ -36,6 +36,14 @@ function SSOverlay:OnInitialize()
 	}
 	
 	self.db = SSPVP.db:RegisterNamespace("overlay", self.defaults)
+	
+	-- Auto create rows as needed
+	self.rows = setmetatable({}, {__index = function(t, k)
+		local row = self:CreateRow()
+		rawset(t, k, row)
+		
+		return row
+	end})
 end
 
 function SSOverlay:Reload()
@@ -49,18 +57,22 @@ function SSOverlay:Reload()
 	self.frame:EnableMouse(not self.db.profile.locked)
 	self:UpdateOverlay()
 	
-	for i=1, CREATED_ROWS do
-		local row = self.rows[i]
-		
+	-- We reset the position before so if we swapped display modes it'll work
+	self.frame:ClearAllPoints()
+	for _, row in pairs(self.rows) do
+		row:ClearAllPoints()
+	end
+	
+	for id, row in pairs(self.rows) do
 		-- If overlay is unlocked, disable mouse so we can move, If it's locked, then enable it if we're not disabling it
 		if( not self.db.profile.locked ) then
 			row:EnableMouse(false)
 		else
 			row:EnableMouse(not self.db.profile.noClick)
 		end
-
-		if( i > 1 ) then
-			row:SetPoint("TOPLEFT", self.rows[CREATED_ROWS - 1], "TOPLEFT", 0, -12)
+		
+		if( id > 1 ) then
+			row:SetPoint("TOPLEFT", self.rows[id - 1], "TOPLEFT", 0, -12)
 		else
 			row:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 5, -5)
 		end
@@ -74,20 +86,27 @@ function SSOverlay:Reload()
 	end
 end
 
+local function safecall(func, ...)
+	local success, result = pcall(func, ...)
+	if( not success ) then
+		geterrorhandler()(result)
+	end
+end
+
 local function onClick(self)
 	-- So you won't accidentally click the overlay, make sure we have an on click too
-	if( not IsModifierKeyDown() or not rows[self.dataID].func ) then
+	if( not IsModifierKeyDown() or not self.data.func ) then
 		return
 	end
 	
 	-- Trigger it
-	local row = rows[self.dataID]
+	local row = self.data
 	if( row.handler ) then
-		row.handler[row.func](row.handler, row.arg)
+		safecall(row.handler[row.func], row.handler, row.arg)
 	elseif( type(row.func) == "string" ) then
-		getglobal(row.func)(row.arg)
-	elseif( type(row.func) == "function" ) then
-		row.func(row.arg)
+		safecall(getglobal(row.func), row.arg)
+	else
+		safecall(row.func, row.arg)
 	end
 end
 
@@ -119,18 +138,18 @@ local function formatTime(seconds)
 	if( SSOverlay.db.profile.shortTime ) then
 		return formatShortTime(seconds)
 	else
-		return SecondsToTime(seconds)
+		local time = SecondsToTime(seconds)
+		return time == "" and L["0 Sec"] or time
 	end
 end
 
 local function onUpdate(self)
 	local time = GetTime()
-	local row = rows[self.dataID]
+	local row = self.data
 	
 	if( row.type == "up" ) then
 		row.seconds = row.seconds + (time - row.lastUpdate)
 	elseif( row.type == "down" ) then
-
 		row.seconds = row.seconds - (time - row.lastUpdate)
 	end
 	
@@ -141,8 +160,7 @@ local function onUpdate(self)
 	else
 		self.text:SetFormattedText(row.text, formatTime(row.seconds))
 		
-		-- Do a quick recheck incase the text got bigger in the update without
-		-- something being removed/added
+		-- Do a quick recheck incase the text got bigger in the update without something being removed/added
 		if( longestText < (self.text:GetStringWidth() + 10) ) then
 			longestText = self.text:GetStringWidth() + 20
 			SSOverlay.frame:SetWidth(longestText)
@@ -174,103 +192,91 @@ function SSOverlay:FormatTime(seconds, skipSeconds)
 end
 
 function SSOverlay:UpdateCategoryText()
-	-- Figure out total unique categories we're showing
-	local activeCats = 0
-	for _, total in pairs(catCount) do
-		if( total > 0 ) then
-			activeCats = activeCats + 1
-		end
-	end
-			
 	-- Now add category texts as required
 	for name, total in pairs(catCount) do
-		if( activeCats > 1 and total > 0 ) then
-			self:RegisterRow("catText", "cat" .. name, name, categories[name].label, nil, nil, 1)
+		if( ACTIVE_CATS > 1 and total > 0 ) then
+			self:RegisterRow("catText", categories[name].id, name, categories[name].label, nil, nil, 1)
 		else
-			self:RemoveRow("cat" .. name)
+			self:RemoveRow(categories[name].id)
 		end
 	end
 end
 
 function SSOverlay:UpdateOverlay()
-	local totalRows = #(rows)
-	if( totalRows == 0 ) then
+	if( ACTIVE_ROWS == 0 ) then
 		longestText = 0
-		
 		if( self.frame ) then
 			self.frame:Hide()
-
 		end
 		return
-	end
-	
-	if( not self.frame ) then
+
+	elseif( not self.frame ) then
 		self:CreateFrame()
 	end
 	
-	if( resortRows ) then
-		table.sort(rows, sortOverlay)
-		resortRows = nil
-	end
+	table.sort(timers, sortOverlay)
 	
-	for id, data in pairs(rows) do
-		if( id > MAX_ROWS ) then
-			break
-		end
-		
-		local row = self.rows[id]
-		if( not row ) then
-			row = self:CreateRow()
-		end
-		
-		-- Text rows just need static text no fancy stuff timers and elapsed rows actually need an OnUpdate
-		if( data.type == "text" or data.type == "catText" ) then
-			row.text:SetText(data.text)
-			row:SetScript("OnUpdate", nil)
-		elseif( data.type == "up" or data.type == "down" ) then
-			row.text:SetFormattedText(data.text, formatTime(data.seconds))
-			row:SetScript("OnUpdate", onUpdate)
-		end
-		
-		if( data.color ) then
-			row.text:SetTextColor(data.color.r, data.color.g, data.color.b)
-		elseif( data.type == "catText" ) then
-			row.text:SetTextColor(self.db.profile.categoryColor.r, self.db.profile.categoryColor.g, self.db.profile.categoryColor.b)
-		else
-			row.text:SetTextColor(self.db.profile.textColor.r, self.db.profile.textColor.g, self.db.profile.textColor.b)
-		end
-		
-		row.dataID = id
-		row:Show()
-		
-		if( longestText < (row.text:GetStringWidth() + 10) ) then
-			longestText = row.text:GetStringWidth() + 20
+	local rowsUsed = 0
+	for _, data in pairs(timers) do
+		if( data.enabled ) then
+			rowsUsed = rowsUsed + 1
+			if( rowsUsed > MAX_ROWS ) then
+				break
+			end
+
+			local row = self.rows[rowsUsed]
+
+			-- Text rows just need static text no fancy stuff timers and elapsed rows actually need an OnUpdate
+			if( data.type == "text" or data.type == "catText" ) then
+				row.text:SetText(data.text)
+				row:SetScript("OnUpdate", nil)
+			elseif( data.type == "up" or data.type == "down" ) then
+				row.text:SetFormattedText(data.text, formatTime(data.seconds))
+				row:SetScript("OnUpdate", onUpdate)
+			end
+
+			if( data.color ) then
+				row.text:SetTextColor(data.color.r, data.color.g, data.color.b)
+			elseif( data.type == "catText" ) then
+				row.text:SetTextColor(self.db.profile.categoryColor.r, self.db.profile.categoryColor.g, self.db.profile.categoryColor.b)
+			else
+				row.text:SetTextColor(self.db.profile.textColor.r, self.db.profile.textColor.g, self.db.profile.textColor.b)
+			end
+
+			row.data = data
+			row:Show()
+			
+			-- This makes sure we always have the overlay width set correctly, without having it jump around on every little minor change
+			if( longestText < (row.text:GetStringWidth() + 10) ) then
+				longestText = row.text:GetStringWidth() + 20
+			end
 		end
 	end
-	
+
 	-- Hide anything unused, and adjust the row width to match the overlay
-	for i=1, CREATED_ROWS do
-		if( i > totalRows ) then
-			self.rows[i].dataID = nil
-			self.rows[i]:Hide()
+	for id, row in pairs(self.rows) do
+		if( id > rowsUsed ) then
+			row.data = nil
+			row:Hide()
 		else
-			self.rows[i]:SetWidth(longestText + 15)
+			row:SetWidth(longestText + 15)
 		end
 	end
 	
 	-- Resize
-	self.frame:SetHeight(min(MAX_ROWS, totalRows) * (self.rows[1].text:GetHeight() + 2) + 9)
+	self.frame:SetHeight(min(MAX_ROWS, rowsUsed) * (self.rows[1].text:GetHeight() + 2) + 9)
 	self.frame:SetWidth(longestText)
 	self.frame:Show()
 end
 
 -- Remove an entry by id or category
 function SSOverlay:RemoveAll()
+	ACTIVE_ROWS = 0
+	ACTIVE_CATS = 0
 	longestText = 0
 	
-
-	for i=#(rows), 1, -1 do
-		table.remove(rows, i)
+	for _, data in pairs(timers) do
+		data.enabled = nil
 	end
 	
 	for cat in pairs(catCount) do
@@ -278,45 +284,50 @@ function SSOverlay:RemoveAll()
 	end
 	
 	if( self.frame ) then
-		for i=1, CREATED_ROWS do
-			self.rows[i]:Hide()
-		end
-		
 		self.frame:Hide()
 	end
 end
 
 function SSOverlay:RemoveRow(id)
-	for i=#(rows), 1, -1 do
-		local row = rows[i]
-		if( row and row.id == id ) then
-			longestText = 0
-			table.remove(rows, i)
+	for _, data in pairs(timers) do
+		if( data.enabled and data.id == id ) then
+			ACTIVE_ROWS = ACTIVE_ROWS - 1
 			
-			if( row.type ~= "catText" ) then
-				catCount[row.category] = catCount[row.category] - 1
+			data.enabled = nil
+			longestText = 0
+			
+			if( data.type ~= "catText" ) then
+				catCount[data.category] = catCount[data.category] - 1
+				if( catCount[data.category] <= 0 ) then
+					ACTIVE_CATS = ACTIVE_CATS - 1
+				end
+				
 				self:UpdateCategoryText()
 			end
 
 			
 			self:UpdateOverlay()
+			break
 		end
 	end
 end
 
 function SSOverlay:RemoveCategory(category)
 	local updated
-	for i=#(rows), 1, -1 do
-		if( rows[i].category == category ) then
-			table.remove(rows, i)
+	for _, data in pairs(timers) do
+		if( data.category == category and data.enabled ) then
+			data.enabled = nil
+			ACTIVE_ROWS = ACTIVE_ROWS - 1
+			
 			updated = true
 		end
 	end
-	
+
 	if( updated ) then
 		longestText = 0
-		catCount[category] = nil
-		
+
+		ACTIVE_CATS = ACTIVE_CATS - 1
+
 		self:UpdateCategoryText()
 		self:UpdateOverlay()
 	end
@@ -337,49 +348,53 @@ end
 
 -- Generic register, only used internally
 function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priority)
-	local row
-	local newRow
-	
-	if( savedData[id] ) then
-		row = savedData[id]
+	-- Check if we can grab a table
+	local disabledRow, idRow
+	for _, data in pairs(timers) do
+		if( data.id == id ) then
+			idRow = data
+			break
+		elseif( not data.enabled ) then
+			disabledRow = data
+		end
 	end
 	
+	local row = idRow or disabled
 	if( not row ) then
-		savedData[id] = {}
-		row = savedData[id]
-		newRow = true
+		row = {}
+		table.insert(timers, row)
+
+		ACTIVE_ROWS = ACTIVE_ROWS + 1
 	end
 	
+	-- Set up the basic stuff
+	row.enabled = true
 	row.type = type
 	row.id = id
 	row.category = category
 	row.text = text
 	row.color = color
 	row.category = category
-	row.addOrder = row.addOrder or ADDED_ENTRIES
+	row.addOrder = row.addOrder or ACTIVE_ROWS
 	row.sortID = categories[category].order + priority
+	row.seconds = nil
+	row.lastUpdate = nil
 	
 	-- Set start time and last update for timers
 	if( type == "up" or type == "down" ) then
 		row.seconds = seconds
 		row.lastUpdate = GetTime()
-	else
-		row.seconds = nil
-		row.lastUpdate = nil
 	end
 
-	-- New row time
-	if( newRow ) then
-		ADDED_ENTRIES = ADDED_ENTRIES + 1
-		resortRows = true
-		table.insert(rows, row)
+	-- Infinite recusion is bad
+	if( row.type ~= "catText" ) then
+		catCount[category] = (catCount[category] or 0 ) + 1
 		
-		-- Infinite recusion is bad
-		if( row.type ~= "catText" ) then
-			catCount[category] = (catCount[category] or 0 ) + 1
-			self:UpdateCategoryText()
+		if( catCount[category] == 1 ) then
+			ACTIVE_CATS = ACTIVE_CATS + 1
 		end
-
+		
+		self:UpdateCategoryText()
 	end
 	
 	self:UpdateOverlay()
@@ -388,8 +403,8 @@ end
 -- Associates something to run when we click on a row in the overlay
 function SSOverlay:RegisterOnClick(id, handler, func, arg)
 	local row
-	for _, data in pairs(rows) do
-		if( data.id == id ) then
+	for _, data in pairs(timers) do
+		if( data.id == id and data.enabled ) then
 			row = data
 			break
 		end
@@ -411,8 +426,6 @@ end
 
 -- Create container frame
 function SSOverlay:CreateFrame()
-	self.rows = {}
-
 	-- Setup the overlay frame
 	self.frame = CreateFrame("Frame", nil, UIParent)
 	self.frame:RegisterForDrag("LeftButton")
@@ -454,11 +467,8 @@ function SSOverlay:CreateFrame()
 end
 
 -- Create a new row
+local CREATED_ROWS = 0
 function SSOverlay:CreateRow()
-	if( CREATED_ROWS >= MAX_ROWS or not self.frame ) then
-		return
-	end
-
 	CREATED_ROWS = CREATED_ROWS + 1
 
 	local row = CreateFrame("Frame", nil, self.frame)
@@ -485,7 +495,6 @@ function SSOverlay:CreateRow()
 		row:SetPoint("TOPLEFT", self.frame, "TOPLEFT", 5, -5)
 	end
 	
-
 	-- Reposition it if we're growing up
 	if( self.db.profile.growUp ) then
 		local scale = self.frame:GetEffectiveScale()
@@ -493,6 +502,5 @@ function SSOverlay:CreateRow()
 		self.frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", self.db.profile.x / scale, self.db.profile.y / scale)
 	end
 
-	self.rows[CREATED_ROWS] = row
 	return row
 end
