@@ -297,8 +297,9 @@ function SSOverlay:RemoveRow(id)
 			longestText = 0
 			
 			if( data.type ~= "catText" ) then
-				catCount[data.category] = catCount[data.category] - 1
+				catCount[data.category] = (catCount[data.category] or 0) - 1
 				if( catCount[data.category] <= 0 ) then
+					catCount[data.category] = 0
 					ACTIVE_CATS = ACTIVE_CATS - 1
 				end
 				
