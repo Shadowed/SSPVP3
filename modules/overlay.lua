@@ -356,10 +356,11 @@ function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priorit
 			break
 		elseif( not data.enabled ) then
 			disabledRow = data
+			ACTIVE_ROWS = ACTIVE_ROWS + 1
 		end
 	end
 	
-	local row = idRow or disabled
+	local row = idRow or disabledRow
 	if( not row ) then
 		row = {}
 		table.insert(timers, row)
@@ -387,7 +388,7 @@ function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priorit
 	end
 
 	-- Infinite recusion is bad
-	if( row.type ~= "catText" ) then
+	if( type ~= "catText" and not disabledRow and not idRow ) then
 		catCount[category] = (catCount[category] or 0 ) + 1
 		
 		if( catCount[category] == 1 ) then
