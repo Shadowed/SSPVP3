@@ -1,4 +1,4 @@
---[[ $Id: AceTimer-3.0.lua 63220 2008-02-29 11:29:58Z nevcairiel $ ]]
+--[[ $Id: AceTimer-3.0.lua 74633 2008-05-21 08:20:50Z nevcairiel $ ]]
 --[[
 	Basic assumptions:
 	* In a typical system, we do more re-scheduling per second than there are timer pulses per second
@@ -18,7 +18,7 @@
 	- ALLOWS unscheduling ANY timer (including the current running one) at any time, including during OnUpdate processing
 ]]
 
-local MAJOR, MINOR = "AceTimer-3.0", 3
+local MAJOR, MINOR = "AceTimer-3.0", 4
 local AceTimer, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceTimer then return end -- No upgrade needed
@@ -264,6 +264,7 @@ end
 -- Returns true if a timer was cancelled
 
 function AceTimer:CancelTimer(handle, silent)
+	if not handle then return end -- nil handle -> bail out without erroring
 	if type(handle)~="string" then
 		error(MAJOR..": CancelTimer(handle): 'handle' - expected a string", 2)	-- for now, anyway
 	end

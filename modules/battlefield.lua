@@ -18,6 +18,8 @@ function BF:OnInitialize()
 				wsg = true,
 				ab = true,
 				arena = false,
+				wg = false,
+				sota = false,
 			},
 		},
 	}
@@ -32,6 +34,12 @@ function BF:EnableModule(abbrev)
 	self.activeBF = abbrev
 	
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_SYSTEM", self.FilterSystemMessages)
+
+	-- Blizzards code is fucked up, so we do this ourselves
+	if( SHOW_BATTLEFIELD_MINIMAP == "1" ) then
+		BattlefieldMinimap_LoadUI()
+		BattlefieldMinimap:Show()
+	end
 end
 
 function BF:DisableModule()
@@ -42,7 +50,7 @@ function BF:DisableModule()
 	self.activeBF = nil
 	
 	-- Blizzards code doesn't seem to hide it correctly, so will do it ourselves
-	if( SHOW_BATTLEFIELD_MINIMAP == "1" and BattlefieldMinimap and BattlefieldMinimap:IsVisible() ) then
+	if( SHOW_BATTLEFIELD_MINIMAP == "1" and BattlefieldMinimap ) then
 		BattlefieldMinimap:Hide()
 	end
 end
@@ -87,7 +95,7 @@ function BF:PLAYER_DEAD()
 			StaticPopupDialogs["DEATH"].text = HasSoulstone()	
 		end
 	
-	elseif( self.db.profile[self.activeBF] ) then
+	elseif( not self.db.profile.release[self.activeBF] ) then
 		StaticPopupDialogs["DEATH"].text = TEXT(L["Auto release disabled, %d %s until release"])
 	else
 		StaticPopupDialogs["DEATH"].text = TEXT(DEATH_RELEASE_TIMER)

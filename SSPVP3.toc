@@ -32,6 +32,8 @@ modules\overlay.lua
 modules\eots.lua
 modules\av.lua
 modules\ab.lua
+modules\sota.lua
+modules\wg.lua
 modules\battlefield.lua
 modules\window.lua
 modules\match.lua

@@ -848,6 +848,32 @@ function Config:Open()
 	dialog:Open("SSPVP3")
 end
 
+-- Slash command
+SLASH_SSPVP1 = "/sspvp"
+SlashCmdList["SSPVP"] = function(input)
+	input = string.lower(input or "")
+	local self = SSPVP
+	if( input == "suspend" ) then
+		if( self.suspend ) then
+			self:DisableSuspense()
+			self:CancelTimer("DisableSuspense", true)
+		else
+			self.suspend = true
+			self:Print(L["Auto join and leave has been suspended for the next 5 minutes, or until you log off."])
+			self:ScheduleTimer("DisableSuspense", 300)
+		end
+
+		-- Update queue overlay if required
+		self:UPDATE_BATTLEFIELD_STATUS()
+	elseif( input == "ui" ) then
+		Config:Open()
+	else
+		DEFAULT_CHAT_FRAME:AddMessage(L["SSPVP slash commands"])
+		DEFAULT_CHAT_FRAME:AddMessage(L[" - suspend - Suspends auto join and leave for 5 minutes, or until you log off."])
+		DEFAULT_CHAT_FRAME:AddMessage(L[" - ui - Opens the configuration for SSPVP."])
+	end
+end
+
 
 -- Bazaar support
 if( not Bazaar ) then

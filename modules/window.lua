@@ -94,28 +94,43 @@ function Window:UPDATE_BATTLEFIELD_STATUS()
 	end
 end
 
+local function OnAccept(dialog, data)
+	AcceptBattlefieldPort(data, true)
+end
+
+local function OnUpdate(dialg, data)
+	if( not dialog.portExpiration ) then
+		return
+	end
+
+	local seconds = floor(dialog.portExpiration - GetTime())
+	if( seconds <= 0 ) then
+		dialog.portExpiration = nil
+		return
+	end
+
+	getglobal(dialog:GetName() .. "Text"):SetFormattedText(L["You are now eligible to enter %s. %s left to join."], dialog.text_arg1, SecondsToTime(seconds))
+end
+
 StaticPopupDialogs["CONFIRM_NEW_BFENTRY"] = {
 	text = L["You are now eligible to enter %s. %s left to join."],
 	button1 = ENTER_BATTLE,
 	button2 = HIDE,
-	OnAccept = function(data)
-		AcceptBattlefieldPort(data, true)
-	end,
-	OnUpdate = function(elapsed, dialog)
-		if( not dialog.portExpiration ) then
-			return
-		end
-		
-		local seconds = floor(dialog.portExpiration - GetTime())
-		if( seconds <= 0 ) then
-			dialog.portExpiration = nil
-			return
-		end
-		
-		getglobal(dialog:GetName() .. "Text"):SetFormattedText(L["You are now eligible to enter %s. %s left to join."], dialog.text_arg1, SecondsToTime(seconds))
-	end,
 	timeout = 0,
 	whileDead = 1,
 	hideOnEscape = 1,
 	multiple = 1
 }
+
+-- Due to argument changes, we have to swap these around. Of course come 3.0, remove this
+if( IS_WRATH_BUILD ) then
+	StaticPopupDialogs["CONFIRM_NEW_BFENTRY"].OnAccept = OnAccept
+	StaticPopupDialogs["CONFIRM_NEW_BFENTRY"].OnUpdate = OnUpdate
+else
+	StaticPopupDialogs["CONFIRM_NEW_BFENTRY"].OnAccept = function(data)
+		OnAccept(nil, data)
+	end
+	StaticPopupDialogs["CONFIRM_NEW_BFENTRY"].OnUpdate = function(elapsed, dialog)
+		OnUpdate(dialog, elapsed)
+	end
+end

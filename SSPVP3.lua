@@ -12,10 +12,9 @@ SSPVP = LibStub("AceAddon-3.0"):NewAddon("SSPVP", "AceEvent-3.0", "AceTimer-3.0"
 
 local L = SSPVPLocals
 
-local activeBF, activeID, screenTaken, suspendMod
-
 local teamTotals = {[2] = 0, [3] = 0, [5] = 0}
 local statusInfo, queuedUpdates, confirmPortLeave, join, queueID = {}, {}, {}, {}, {}
+local activeBF, activeID, screenTaken, zoneText
 
 if( IS_WRATH_BUILD == nil ) then IS_WRATH_BUILD = (select(4, GetBuildInfo()) >= 30000) end
 
@@ -66,32 +65,7 @@ function SSPVP:OnInitialize()
 		
 	self.revision = tonumber(string.match("$Revision: 816 $", "(%d+)")) or 0
 	self.revision = max(self.revision, SSPVPRevision)
-	
-	-- SSPVP slash commands
-	SLASH_SSPVP1 = "/sspvp"
-	SlashCmdList["SSPVP"] = function(input)
-		input = string.lower(input or "")
-		if( input == "suspend" ) then
-			if( suspendMod ) then
-				self:DisableSuspense()
-				self:CancelTimer("DisableSuspense", true)
-			else
-				suspendMod = true
-				self:Print(L["Auto join and leave has been suspended for the next 5 minutes, or until you log off."])
-				self:ScheduleTimer("DisableSuspense", 300)
-			end
-			
-			-- Update queue overlay if required
-			SSPVP:UPDATE_BATTLEFIELD_STATUS()
-		elseif( input == "ui" ) then
-			SSPVP.modules.Config:Open()
-		else
-			DEFAULT_CHAT_FRAME:AddMessage(L["SSPVP slash commands"])
-			DEFAULT_CHAT_FRAME:AddMessage(L[" - suspend - Suspends auto join and leave for 5 minutes, or until you log off."])
-			DEFAULT_CHAT_FRAME:AddMessage(L[" - ui - Opens the configuration for SSPVP."])
-		end
-	end
-	
+		
 	for i=1, MAX_BATTLEFIELD_QUEUES do
 		queueID[i] = "queue" .. i
 	end
@@ -106,6 +80,7 @@ function SSPVP:OnEnable()
 	self:RegisterEvent("BATTLEFIELDS_SHOW")
 	self:RegisterEvent("UPDATE_BATTLEFIELD_STATUS")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 end
 
 function SSPVP:OnDisable()
@@ -117,8 +92,8 @@ function SSPVP:Reload()
 end
 
 function SSPVP:DisableSuspense()
-	if( suspendMod ) then
-		suspendMod = nil
+	if( self.suspend ) then
+		self.suspend = nil
 		self:Print(L["Suspension has been removed, you will now auto join and leave again."])
 	end
 end
@@ -188,6 +163,19 @@ function SSPVP:BATTLEFIELDS_SHOW()
 	elseif( self.db.profile.auto.group and CanJoinBattlefieldAsGroup() and IsPartyLeader() ) then
 		JoinBattlefield(GetSelectedBattlefield(), true)
 	end
+end
+
+-- For now this will be hard coded as Wintergrasp, can always make it anything later on if needed.
+function SSPVP:ZONE_CHANGED_NEW_AREA()
+	local zone = GetRealZoneText()
+	if( zone ~= zoneText ) then
+		if( zone == L["Wintergrasp"] ) then
+			SSPVP.modules.WG:EnableModule("wg")
+		elseif( zoneText == L["Wintergrasp"] ) then
+			SSPVP.modules.WG:DisableModule()
+		end
+	end
+	zoneText = zone
 end
 
 function SSPVP:UPDATE_BATTLEFIELD_STATUS()
@@ -369,9 +357,9 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 			elseif( status == "confirm" ) then
 				if( not self.db.profile.join.enabled ) then
 					SSOverlay:RegisterTimer(queueID[i], "queue", string.format("%s: %s (%s)", map, "%s", L["Disabled"]), GetBattlefieldPortExpiration(i) / 1000)
-				elseif( suspendMod and join.id == i ) then
+				elseif( self.suspend and join.id == i ) then
 					SSOverlay:RegisterTimer(queueID[i], "queue", string.format("%s: %s (%s)", map, "%s", L["Suspended"]), GetBattlefieldPortExpiration(i) / 1000)
-				elseif( not suspendMod and join.id == i ) then
+				elseif( not self.suspend and join.id == i ) then
 					SSOverlay:RegisterTimer(queueID[i], "queue", string.format("%s: %s %s", map, L["Joining"], "%s"), join.at - GetTime())
 				else
 					SSOverlay:RegisterTimer(queueID[i], "queue", string.format("%s: %s", map, "%s"), GetBattlefieldPortExpiration(i) / 1000)
@@ -404,7 +392,7 @@ function SSPVP:LeaveBattlefield()
 	end
 	
 	-- Check for suspension
-	if( suspendMod ) then
+	if( self.suspend ) then
 		self:Print(L["Suspension is still active, will not auto join or leave."])
 		return
 	end
@@ -493,7 +481,7 @@ function SSPVP:JoinBattlefield()
 	end
 	
 	-- Not auto joining still for 5 minutes
-	if( suspendMod ) then
+	if( self.suspend ) then
 		self:ResetJoin()
 		self:Print(L["Suspension is still active, will not auto join or leave."])
 		return
@@ -724,7 +712,8 @@ function SSPVP:GetBattlefieldList()
 	
 	-- Add WoTLK battlegrounds here eventually
 	if( IS_WRATH_BUILD ) then
-	
+		list["sota"] = L["Strand of the Ancients"]
+		list["wg"] = L["Wintergrasp"]
 	end
 	
 	return list

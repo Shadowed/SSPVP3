@@ -344,6 +344,7 @@ SSPVPLocals = {
 	["wsg"] = "Warsong Gulch",
 	["group"] = "In raid/party",
 	["instance"] = "Instance",
+	["sota"] = "Strand of the Ancients",
 	["none"] = "Everything Else",
 }
 

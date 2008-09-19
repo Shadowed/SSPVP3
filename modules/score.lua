@@ -181,7 +181,6 @@ end
 function Score:CreateInfoButtons()
 	if( not self.allianceButton ) then
 		local button = CreateFrame("Button", nil, WorldStateScoreFrame, "GameMenuButtonTemplate")
-		button:SetFont(GameFontHighlightSmall:GetFont())
 		button:SetText(L["Alliance"])
 		button:SetHeight(19)
 		button:SetWidth(button:GetFontString():GetStringWidth() + 10)
@@ -192,12 +191,20 @@ function Score:CreateInfoButtons()
 		button:SetScript("OnMouseUp", outputServerInfo)
 		button.faction = "Alliance"
 		
+		if( IS_WRATH_BUILD ) then
+			button:SetNormalFontObject(GameFontHighlightSmall)
+			button:SetHighlightFontObject(GameFontHighlightSmall)
+		else
+			button:SetFont(GameFontHighlightSmall:GetFont())
+		end
+		
 		self.allianceButton = button
 	end
 	
 	if( not self.hordeButton ) then
 		local button = CreateFrame("Button", nil, WorldStateScoreFrame, "GameMenuButtonTemplate")
-		button:SetFont(GameFontHighlightSmall:GetFont())
+		button:SetNormalFontObject(GameFontHighlightSmall)
+		button:SetHighlightFontObject(GameFontHighlightSmall)
 		button:SetText(L["Horde"])
 		button:SetHeight(19)
 		button:SetWidth(button:GetFontString():GetStringWidth() + 10)
@@ -208,6 +215,13 @@ function Score:CreateInfoButtons()
 		button:SetScript("OnMouseUp", outputServerInfo)
 		button.faction = "Horde"
 		
+		if( IS_WRATH_BUILD ) then
+			button:SetNormalFontObject(GameFontHighlightSmall)
+			button:SetHighlightFontObject(GameFontHighlightSmall)
+		else
+			button:SetFont(GameFontHighlightSmall:GetFont())
+		end
+
 		self.hordeButton = button
 	end
 end
