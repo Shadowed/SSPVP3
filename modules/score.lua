@@ -203,8 +203,6 @@ function Score:CreateInfoButtons()
 	
 	if( not self.hordeButton ) then
 		local button = CreateFrame("Button", nil, WorldStateScoreFrame, "GameMenuButtonTemplate")
-		button:SetNormalFontObject(GameFontHighlightSmall)
-		button:SetHighlightFontObject(GameFontHighlightSmall)
 		button:SetText(L["Horde"])
 		button:SetHeight(19)
 		button:SetWidth(button:GetFontString():GetStringWidth() + 10)

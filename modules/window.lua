@@ -98,7 +98,7 @@ local function OnAccept(dialog, data)
 	AcceptBattlefieldPort(data, true)
 end
 
-local function OnUpdate(dialg, data)
+local function OnUpdate(dialog, data)
 	if( not dialog.portExpiration ) then
 		return
 	end
