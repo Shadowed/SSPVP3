@@ -352,12 +352,14 @@ function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priorit
 	-- Check if we can grab a table
 	local disabledRow, idRow
 	for _, data in pairs(timers) do
+		if( not data.enabled ) then
+			disabledRow = data
+			ACTIVE_ROWS = ACTIVE_ROWS + 1
+		end
+
 		if( data.id == id ) then
 			idRow = data
 			break
-		elseif( not data.enabled ) then
-			disabledRow = data
-			ACTIVE_ROWS = ACTIVE_ROWS + 1
 		end
 	end
 	
@@ -387,7 +389,7 @@ function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priorit
 		row.seconds = seconds
 		row.lastUpdate = GetTime()
 	end
-
+	
 	-- Infinite recusion is bad
 	if( type ~= "catText" and not disabledRow and not idRow ) then
 		catCount[category] = (catCount[category] or 0 ) + 1
