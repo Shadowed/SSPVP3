@@ -4,7 +4,6 @@ local L = SSPVPLocals
 
 local MAX_ROWS = 20
 local ACTIVE_ROWS = 0
-local ACTIVE_CATS = 0
 
 local longestText = 0
 local timers, catCount = {}, {}
@@ -192,12 +191,19 @@ function SSOverlay:FormatTime(seconds, skipSeconds)
 end
 
 function SSOverlay:UpdateCategoryText()
+	local active = 0
+	for _, count in pairs(catCount) do
+		if( count > 0 ) then
+			active = active + 1
+		end
+	end
+	
 	-- Now add category texts as required
 	for name, total in pairs(catCount) do
-		if( ACTIVE_CATS > 1 and total > 0 ) then
-			self:RegisterRow("catText", categories[name].id, name, categories[name].label, nil, nil, 1)
+		if( active > 1 and total > 0 ) then
+			self:RegisterRow("catText", "cat" .. name, name, categories[name].label, nil, nil, 1)
 		else
-			self:RemoveRow(categories[name].id)
+			self:RemoveRow("cat" .. name)
 		end
 	end
 end
@@ -280,7 +286,7 @@ function SSOverlay:RemoveAll()
 	end
 	
 	for cat in pairs(catCount) do
-		catCount[cat] = nil
+		catCount[cat] = 0
 	end
 	
 	if( self.frame ) then
@@ -289,45 +295,52 @@ function SSOverlay:RemoveAll()
 end
 
 function SSOverlay:RemoveRow(id)
+	ACTIVE_ROWS = 0
+
 	for _, data in pairs(timers) do
 		if( data.enabled and data.id == id ) then
-			ACTIVE_ROWS = ACTIVE_ROWS - 1
+			updated = true
 			
 			data.enabled = nil
-			longestText = 0
-			
 			if( data.type ~= "catText" ) then
 				catCount[data.category] = (catCount[data.category] or 0) - 1
 				if( catCount[data.category] <= 0 ) then
 					catCount[data.category] = 0
-					ACTIVE_CATS = ACTIVE_CATS - 1
 				end
 				
 				self:UpdateCategoryText()
 			end
-
-			
-			self:UpdateOverlay()
-			break
 		end
+		
+		if( data.enabled ) then
+			ACTIVE_ROWS = ACTIVE_ROWS + 1
+		end
+	end
+	
+	if( updated ) then
+		longestText = 0
+		self:UpdateOverlay()
 	end
 end
 
 function SSOverlay:RemoveCategory(category)
+	catCount[category] = 0
+	ACTIVE_ROWS = 0
+	
 	local updated
 	for _, data in pairs(timers) do
 		if( data.category == category and data.enabled ) then
 			data.enabled = nil
-			ACTIVE_ROWS = ACTIVE_ROWS - 1
-			
 			updated = true
+		end
+		
+		if( data.enabled ) then
+			ACTIVE_ROWS = ACTIVE_ROWS + 1
 		end
 	end
 
 	if( updated ) then
 		longestText = 0
-
-		ACTIVE_CATS = ACTIVE_CATS - 1
 
 		self:UpdateCategoryText()
 		self:UpdateOverlay()
@@ -349,17 +362,19 @@ end
 
 -- Generic register, only used internally
 function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priority)
+	ACTIVE_ROWS = 1
+
 	-- Check if we can grab a table
 	local disabledRow, idRow
 	for _, data in pairs(timers) do
 		if( not data.enabled ) then
 			disabledRow = data
+		else
 			ACTIVE_ROWS = ACTIVE_ROWS + 1
 		end
 
 		if( data.id == id ) then
 			idRow = data
-			break
 		end
 	end
 	
@@ -367,8 +382,12 @@ function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priorit
 	if( not row ) then
 		row = {}
 		table.insert(timers, row)
-
-		ACTIVE_ROWS = ACTIVE_ROWS + 1
+	end
+	
+	-- Update category count for this now
+	local update
+	if( type ~= "catText" and not row.enabled ) then
+		update = true
 	end
 	
 	-- Set up the basic stuff
@@ -389,15 +408,9 @@ function SSOverlay:RegisterRow(type, id, category, text, color, seconds, priorit
 		row.seconds = seconds
 		row.lastUpdate = GetTime()
 	end
-	
-	-- Infinite recusion is bad
-	if( type ~= "catText" and not disabledRow and not idRow ) then
-		catCount[category] = (catCount[category] or 0 ) + 1
-		
-		if( catCount[category] == 1 ) then
-			ACTIVE_CATS = ACTIVE_CATS + 1
-		end
-		
+
+	if( update ) then
+		catCount[category] = (catCount[category] or 0) + 1
 		self:UpdateCategoryText()
 	end
 	

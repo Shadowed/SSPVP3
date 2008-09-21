@@ -100,7 +100,7 @@ function Score:GetTooltip(faction)
 	
 	for i=1, GetNumBattlefieldScores() do
 		local name, _, _, _, _, playerFaction, _, _, class = GetBattlefieldScore(i)
-		if( playerFaction == factionID ) then
+		if( playerFaction == factionID and name ) then
 			local server
 			if( string.match(name, "%-") ) then
 				name, server = string.match(name, "(.-)%-(.*)$")

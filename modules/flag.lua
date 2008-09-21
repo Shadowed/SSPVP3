@@ -265,6 +265,8 @@ end
 function Flag:Returned(faction)
 	carriers[faction].time = nil
 	carriers[faction].name = nil
+	carriers[faction].health = nil
+	
 	SSOverlay:RemoveRow(faction .. "time")
 end
 

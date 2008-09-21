@@ -686,7 +686,9 @@ function SSPVP:PLAYER_REGEN_ENABLED()
 		else
 			func()	
 		end
-		
+	end
+	
+	for func in pairs(queuedUpdates) do
 		queuedUpdates[func] = nil
 	end
 end
