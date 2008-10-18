@@ -16,8 +16,6 @@ local teamTotals = {[2] = 0, [3] = 0, [5] = 0}
 local statusInfo, queuedUpdates, confirmPortLeave, join, queueID = {}, {}, {}, {}, {}
 local activeBF, activeID, screenTaken, zoneText
 
-if( IS_WRATH_BUILD == nil ) then IS_WRATH_BUILD = (select(4, GetBuildInfo()) >= 30000) end
-
 function SSPVP:OnInitialize()
 	self.defaults = {
 		profile = {
@@ -712,11 +710,8 @@ function SSPVP:GetBattlefieldList()
 		list = {["arena"] = L["Arena"], ["eots"] = L["Eye of the Storm"], ["wsg"] = L["Warsong Gulch"], ["ab"] = L["Arathi Basin"], ["av"] = L["Alterac Valley"]}
 	end
 	
-	-- Add WoTLK battlegrounds here eventually
-	if( IS_WRATH_BUILD ) then
-		list["sota"] = L["Strand of the Ancients"]
-		list["wg"] = L["Wintergrasp"]
-	end
+	list["sota"] = L["Strand of the Ancients"]
+	list["wg"] = L["Wintergrasp"]
 	
 	return list
 end
@@ -751,7 +746,7 @@ StaticPopupDialogs["CONFIRM_PORT_LEAVE"] = {
 	text = "",
 	button1 = TEXT(YES),
 	button2 = TEXT(NO),
-	OnAccept = function(id)
+	OnAccept = function(dialog, id)
 		confirmPortLeave[id] = true
 		AcceptBattlefieldPort(id, nil)
 	end,

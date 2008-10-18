@@ -39,6 +39,7 @@ function BF:EnableModule(abbrev)
 	if( SHOW_BATTLEFIELD_MINIMAP == "1" ) then
 		BattlefieldMinimap_LoadUI()
 		BattlefieldMinimap:Show()
+		WorldMapZoneMinimapDropDown_Update()
 	end
 end
 
@@ -52,6 +53,7 @@ function BF:DisableModule()
 	-- Blizzards code doesn't seem to hide it correctly, so will do it ourselves
 	if( SHOW_BATTLEFIELD_MINIMAP == "1" and BattlefieldMinimap ) then
 		BattlefieldMinimap:Hide()
+		WorldMapZoneMinimapDropDown_Update()
 	end
 end
 

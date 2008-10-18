@@ -1,4 +1,4 @@
-## Interface: 20400
+## Interface: 30000
 ## Title: SSPVP 3
 ## Version: $Revision: 808 $
 ## Notes: PvP, Battleground and Arena mod

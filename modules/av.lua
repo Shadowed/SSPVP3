@@ -312,24 +312,12 @@ end
 -- Deal with the fact that Blizzard now uses self, ... instead of just ...
 -- not the cleanest method, I'd rather use a filter but filters only gives you the message not the author.
 local Orig_ChatFrame_OnEvent = ChatFrame_OnEvent
-if( IS_WRATH_BUILD ) then
-	function ChatFrame_OnEvent(self, event, msg, from, ...)
-		if( event == "CHAT_MSG_MONSTER_YELL" ) then
-			if( not checkMessage(msg, from) ) then
-				return
-			end
+function ChatFrame_OnEvent(self, event, msg, from, ...)
+	if( event == "CHAT_MSG_MONSTER_YELL" ) then
+		if( not checkMessage(msg, from) ) then
+			return
 		end
-		
-		return Orig_ChatFrame_OnEvent(self, event, msg, from, ...)
 	end
-else
-	function ChatFrame_OnEvent(event, ...)
-		if( event == "CHAT_MSG_MONSTER_YELL" ) then
-			if( not checkMessage(arg1, arg2) ) then
-				return
-			end
-		end
 
-		return Orig_ChatFrame_OnEvent(event, ...)
-	end
+	return Orig_ChatFrame_OnEvent(self, event, msg, from, ...)
 end
