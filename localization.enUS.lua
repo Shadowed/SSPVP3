@@ -40,6 +40,7 @@ SSPVPLocals = {
 	["You are about to leave the active or queued battleground %s, are you sure?"] = "You are about to leave the active or queued battleground %s, are you sure?",
 	
 	["Screenshot saved as WoWScrnShot_%s.%s."] = "Screenshot saved as WoWScrnShot_%s.%s.",
+	["Failed to save screenshot."] = "Failed to save screenshot.",
 	
 	["Unknown"] = "Unknown",
 	["the raid group.$"] = "the raid group.$",
@@ -128,6 +129,9 @@ SSPVPLocals = {
 	["Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000"] = "Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000",
 	["Bases %d  Points %d/2000"] = "Bases %d  Points %d/2000",
 	["flag has been reset"] = "flag has been reset",
+	
+	-- Strand of the Ancient
+	["Bomb: %s"] = "Bomb: %s",
 	
 	-- Gods
 	["Ivus the Forest Lord"] = "Ivus the Forest Lord",
@@ -266,6 +270,8 @@ SSPVPLocals = {
 	["Lock PvP objectives"] = "Lock PvP objectives",
 	["Lock battlefield score board"] = "Lock battlefield score board",
 	["Lock node capture bar"] = "Lock node capture bar",
+	
+	["Show bomb explosion timers"] = "Show bomb explosion timers",
 	
 	-- Auto leave
 	["Auto leave"] = "Auto leave",

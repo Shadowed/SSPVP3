@@ -1,4 +1,8 @@
---[[ $Id: AceTimer-3.0.lua 639 2008-05-16 08:49:42Z ammo $ ]]
+--- AceTimer-3.0 provides a central facility for registering timers.
+-- @class file
+-- @name AceTimer-3.0
+-- @release $Id: AceTimer-3.0.lua 710 2008-12-19 10:14:39Z nevcairiel $
+
 --[[
 	Basic assumptions:
 	* In a typical system, we do more re-scheduling per second than there are timer pulses per second

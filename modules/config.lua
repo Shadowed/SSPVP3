@@ -249,6 +249,32 @@ function loadOptions()
 		},
 	}
 
+	--[[ Strand of the Ancient ]]--
+	options.args.sota = {
+		type = "group",
+		order = 1,
+		name = L["Strand of the Ancients"],
+		get = get,
+		set = set,
+		args = {
+			sota = {
+				type = "group",
+				order = 7,
+				inline = true,
+				name = L["General"],
+				args = {
+					bomb = {
+						order = 1,
+						type = "toggle",
+						name = L["Show bomb explosion timers"],
+						width = "full",
+						arg = "SOTA",
+					},
+				},
+			},
+		},
+	}
+
 	--[[ ARATHI BASIN ]]--
 	options.args.ab = {
 		type = "group",
@@ -828,10 +854,11 @@ function loadOptions()
 	options.args.join.order = 4
 	options.args.leave.order = 5
 	options.args.eots.order = 6
-	options.args.ab.order = 7
-	options.args.av.order = 8
-	options.args.wsg.order = 9
-	options.args.profile.order = 10
+	options.args.sota.order = 7
+	options.args.ab.order = 8
+	options.args.av.order = 9
+	options.args.wsg.order = 10
+	options.args.profile.order = 11
 end
 
 function Config:Open()

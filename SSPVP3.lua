@@ -29,6 +29,7 @@ function SSPVP:OnInitialize()
 				eots = 3,
 				av = 3,
 				ab = 3,
+				sota = 3,
 				wsg = 3,
 				group = 4,
 				instance = 5,
@@ -339,7 +340,8 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 			if( teamSize > 0 ) then
 				-- Before arenas start you're queued for all arena maps once queues ready, they tell us specifically what map we're going into
 				-- This is no longer the case as of 2.4.0, it'll always return Eastern Kingdoms
-				if( map == L["All Arenas"] or map == L["Eastern Kingdoms"] ) then
+				-- And as of 3.0 it'll return All Arenas
+				if( map == L["All Arenas"] ) then
 					if( isRegistered ) then
 						map = L["Rated Arena"]
 					else
@@ -379,6 +381,8 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 				SSOverlay:RemoveRow(queueID[i])
 			end
 		end
+	else
+		SSOverlay:RemoveCategory("queue")
 	end
 end
 
@@ -448,16 +452,17 @@ function SSPVP:QUEST_LOG_UPDATE()
 end
 
 -- Screenshot taken
-function SSPVP:ScreenshotTaken()
-	local format = GetCVar("screenshotFormat")
-	-- jpeg format is used, jpg is the actual ext it's saved as
-	if( format == "jpeg" ) then
-		format = "jpg"
-	end
-
+function SSPVP:ScreenshotTaken(event)
 	self:UnregisterEvent("SCREENSHOT_SUCCEDED")
 	self:UnregisterEvent("SCREENSHOT_FAILED")
-	self:Print(string.format(L["Screenshot saved as WoWScrnShot_%s.%s."], date("%m%d%y_%H%M%S"), format))
+	
+	if( event == "SCREENSHOT_SUCCEDED" ) then
+		local format = GetCVar("screenshotFormat")
+		format = format == "jpeg" and "jpg" or format
+		self:Print(string.format(L["Screenshot saved as WoWScrnShot_%s.%s."], date("%m%d%y_%H%M%S"), format))
+	else
+		self:Print(string.format(L["Failed to save screenshot."]))
+	end
 
 	if( self.db.profile.leave.delay <= 0 ) then
 		self:LeaveBattlefield()
