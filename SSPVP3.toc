@@ -1,6 +1,5 @@
-## Interface: 30000
+## Interface: 30100
 ## Title: SSPVP 3
-## Version: $Revision: 808 $
 ## Notes: PvP, Battleground and Arena mod
 ## Author: Mayen
 ## SavedVariables: SSPVPDB

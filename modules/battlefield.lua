@@ -58,7 +58,7 @@ function BF:DisableModule()
 end
 
 -- Filter spam
-function BF.FilterSystemMessages(msg)
+function BF.FilterSystemMessages(self, event, msg)
 	if( string.match(msg, L["the raid group.$"]) ) then
 		return true
 	end
