@@ -391,6 +391,41 @@ function loadOptions()
 		},
 	}
 	
+	--[[ WINTERGRASP ]]--
+	options.args.wg = {
+		type = "group",
+		order = 1,
+		name = L["Wintergrasp"],
+		get = get,
+		set = set,
+		args = {
+			timers = {
+				order = 1,
+				type = "group",
+				inline = true,
+				name = L["Timers"],
+				args = {
+					start = {
+						order = 1,
+						type = "toggle",
+						name = L["Show battle start time"],
+						width = "full",
+						arg = "WG"
+					},
+					showAt = {
+						order = 2,
+						type = "range",
+						name = L["Show timer when match starts in"],
+						desc = L["Only show the battle start timer when the match starts within the set amount of minutes."],
+						min = 0, max = 170, step = 5,
+						width = "full",
+						arg = "WG",
+					},
+				},
+			},
+		},
+	}
+	
 	--[[ GENERAL ]]--
 	options.args.general = {
 		type = "group",

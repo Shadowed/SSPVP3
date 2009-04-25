@@ -6,10 +6,17 @@ local L = SSPVPLocals
 function WG:OnInitialize()
 	self.defaults = {
 		profile = {
+			start = true,
+			showAt = 30,
 		},
 	}
 	
 	self.db = SSPVP.db:RegisterNamespace("wg", self.defaults)
+
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "PLAYER_ENTERING_WORLD")
+	
+	self:PLAYER_ENTERING_WORLD()
 end
 
 function WG:EnableModule()
@@ -17,13 +24,23 @@ function WG:EnableModule()
 end
 
 function WG:DisableModule()
-	self:UnregisterAllEvents()
+	self:UnregisterEvent("PLAYER_DEAD")
 end
 
 function WG:Reload()
 	if( self.isActive ) then
 		self:UnregisterAllEvents()
 		self:EnableModule()
+	end
+	
+	self:PLAYER_ENTERING_WORLD()
+end
+
+function WG:PLAYER_ENTERING_WORLD()
+	if( self.db.profile.start and GetWintergraspWaitTime() > 0 and (GetWintergraspWaitTime() / 60) <= self.db.profile.showAt ) then
+		SSOverlay:RegisterTimer("wgstart", "timer", L["Battle starts: %s"], GetWintergraspWaitTime() - 5, SSPVP:GetFactionColor("Neutral"))	
+	else
+		SSOverlay:RemoveRow("wgstart")
 	end
 end
 
@@ -53,6 +70,7 @@ function WG:PLAYER_DEAD()
 	end
 end
 
+--GetWintergraspWaitTime
 --[[
 local Orig_WorldStateAlwaysUpFrame_Update = WorldStateAlwaysUpFrame_Update
 function WorldStateAlwaysUpFrame_Update(...)

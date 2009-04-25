@@ -169,7 +169,7 @@ function SSPVP:ZONE_CHANGED_NEW_AREA()
 	local zone = GetRealZoneText()
 	if( zone ~= zoneText ) then
 		if( zone == L["Wintergrasp"] ) then
-			SSPVP.modules.WG:EnableModule("wg")
+			SSPVP.modules.WG:EnableModule()
 		elseif( zoneText == L["Wintergrasp"] ) then
 			SSPVP.modules.WG:DisableModule()
 		end

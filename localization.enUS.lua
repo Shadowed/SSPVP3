@@ -101,6 +101,7 @@ SSPVPLocals = {
 	["Classes"] = "Classes",
 	
 	-- Wintergrasp
+	["Battle starts: %s"] = "Battle starts: %s",
 	
 	-- Arathi basin
 	["claims the ([^!]+)"] = "claims the ([^!]+)",
@@ -226,7 +227,10 @@ SSPVPLocals = {
 	["Show basic match information"] = "Show basic match information",
 	["Show bases to win"] = "Show bases to win",
 	
-	-- Tiemr configuration
+	-- Timer configuration
+	["Show battle start time"] = "Show battle start time",
+	["Show timer when match starts in"] = "Show timer when match starts in",
+	["Only show the battle start timer when the match starts within the set amount of minutes."] = "Only show the battle start timer when the match starts within the set amount of minutes.",
 	["Timers"] = "Timers",
 	
 	["Enable capture timers"] = "Enable capture timers",
