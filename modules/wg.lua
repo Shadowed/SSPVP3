@@ -37,7 +37,7 @@ function WG:Reload()
 end
 
 function WG:PLAYER_ENTERING_WORLD()
-	if( self.db.profile.start and GetWintergraspWaitTime() > 0 and (GetWintergraspWaitTime() / 60) <= self.db.profile.showAt ) then
+	if( self.db.profile.start and GetWintergraspWaitTime() and GetWintergraspWaitTime() > 0 and (GetWintergraspWaitTime() / 60) <= self.db.profile.showAt ) then
 		SSOverlay:RegisterTimer("wgstart", "timer", L["Battle starts: %s"], GetWintergraspWaitTime() - 5, SSPVP:GetFactionColor("Neutral"))	
 	else
 		SSOverlay:RemoveRow("wgstart")
