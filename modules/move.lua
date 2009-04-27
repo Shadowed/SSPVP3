@@ -14,18 +14,24 @@ function Move:OnInitialize()
 	}
 	
 	self.db = SSPVP.db:RegisterNamespace("move", self.defaults)
-	self:RestorePosition("pvp", WorldStateAlwaysUpFrame)
-	self:RestorePosition("score", WorldStateScoreFrame)
-	self:Reload()
-
-	-- Capture bars have to be repositioned when this is called
-	hooksecurefunc("UIParent_ManageFramePositions", self.UpdateCapturePosition)
+	-- Wait to do all of our positioning stuff until scale was set correctly
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 function Move:Reload()
 	self:TogglePVP()
 	self:ToggleCapture()
 	self:ToggleScore()
+end
+
+function Move:PLAYER_ENTERING_WORLD()
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	
+	self:RestorePosition("pvp", WorldStateAlwaysUpFrame)
+	self:RestorePosition("score", WorldStateScoreFrame)
+	self:Reload()
+
+	hooksecurefunc("UIParent_ManageFramePositions", self.UpdateCapturePosition)
 end
 
 -- Save frame position

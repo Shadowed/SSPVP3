@@ -204,7 +204,7 @@ local function buildPriorities()
 	return priorities
 end
 
-local battlefields = SSPVP:GetBattlefieldList()
+local battlefields = {["arena"] = L["Arena"], ["eots"] = L["Eye of the Storm"], ["wsg"] = L["Warsong Gulch"], ["ab"] = L["Arathi Basin"], ["av"] = L["Alterac Valley"], ["sota"] = L["Strand of the Ancients"], ["wg"] = L["Wintergrasp"]}
 local channels = {["BATTLEGROUND"] = L["Battleground"], ["RAID"] = L["Raid"], ["PARTY"] = L["Party"]}
 
 function loadOptions()
@@ -893,7 +893,8 @@ function loadOptions()
 	options.args.ab.order = 8
 	options.args.av.order = 9
 	options.args.wsg.order = 10
-	options.args.profile.order = 11
+	options.args.wg.order = 11
+	options.args.profile.order = 12
 end
 
 function Config:Open()
@@ -935,73 +936,3 @@ SlashCmdList["SSPVP"] = function(input)
 		DEFAULT_CHAT_FRAME:AddMessage(L[" - ui - Opens the configuration for SSPVP."])
 	end
 end
-
-
--- Bazaar support
-if( not Bazaar ) then
-	return
-end
-
-local configKeys
-function Config:LoadKeys()
-	if( configKeys ) then
-		return
-	end
-	
-	configKeys = {
-		["general"] = {"general", "auto", "queue", "Window", "Move"},
-		["overlay"] = {"Overlay"},
-		["battlefield"] = {"Battlefield", "Score"},
-		["join"] = {"join", "priorities"},
-		["leave"] = {"leave"},
-		["battlegrounds"] = {"Flag", "Match", "AV", "AB"},
-	}
-end
-
-function Config:Receive(config, categories)
-	self:LoadKeys()
-	
-	for key in pairs(categories) do
-		for cat, data in pairs(config[key]) do
-			if( SSPVP.modules[cat] ) then
-				SSPVP.modules[cat].db.profile = data
-			elseif( SSPVP.db.profile[cat] ~= nil ) then
-				SSPVP.db.profile[cat] = data
-			end
-		end
-	end
-	
-	return L["You might have to do a /console reloadui before changes take effect."]
-end
-
-function Config:Send(categories)
-	self:LoadKeys()
-	
-	local config = {}
-	
-	for key in pairs(categories) do
-		if( configKeys[key] ) then
-			config[key] = {}
-			
-			for cat in pairs(configKeys[key]) do
-				if( SSPVP.modules[cat] ) then
-					config[key][cat] = CopyTable(SSPVP.modules[cat].db.profile)
-				elseif( SSPVP.db.profile[cat] ~= nil ) then
-					config[key][cat] = CopyTable(SSPVP.db.profile[cat])
-				end
-			end
-		end
-	end
-end
-
-local obj = Bazaar:RegisterAddOn("SSPVP3")
-obj:RegisterCategory("general", "General")
-obj:RegisterCategory("overlay", "Overlay")
-obj:RegisterCategory("battlefield", "Battlefield")
-obj:RegisterCategory("join", "Auto join")
-obj:RegisterCategory("leave", "Auto leave")
-obj:RegisterCategory("battleground", "Battlegrounds")
-
-
-obj:RegisterReceiveHandler(Config, "Receive")
-obj:RegisterSendHandler(Config, "Send")

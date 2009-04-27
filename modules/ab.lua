@@ -2,7 +2,6 @@ local AB = SSPVP:NewModule("AB", "AceEvent-3.0")
 AB.activeIn = "ab"
 
 local L = SSPVPLocals
-
 local timers = {}
 
 function AB:OnInitialize()
@@ -11,7 +10,7 @@ function AB:OnInitialize()
 			timers = true,
 		},
 	}
-	
+
 	self.db = SSPVP.db:RegisterNamespace("ab", self.defaults)
 end
 

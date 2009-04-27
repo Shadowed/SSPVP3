@@ -1,7 +1,7 @@
 ## Interface: 30100
 ## Title: SSPVP 3
 ## Notes: PvP, Battleground and Arena mod
-## Author: Mayen
+## Author: Mayen/Selari
 ## SavedVariables: SSPVPDB
 ## OptionalDeps: Ace3, LibStub
 

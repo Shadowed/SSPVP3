@@ -29,7 +29,7 @@ SSPVPLocals = {
 	["Skirmish Arena"] = "Skirmish Arena",
 
 	-- Auto joining
-	["You are now in the queue for %s Arena (%dvs%d)."] = "You are now in the queue for %s Arena (%dvs%d).",
+	["You are now in the queue for %s Arenas (%dvs%d)."] = "You are now in the queue for %s Arenas (%dvs%d).",
 	["You are now in the queue for %s."] = "You are now in the queue for %s.",
 	
 	["Higher priority battlefield ready, auto joining %s in %d seconds."] = "Higher priority battlefield ready, auto joining %s in %d seconds.",
@@ -361,5 +361,3 @@ SSPVPLocals = {
 BINDING_HEADER_SSPVP = "SSPVP";
 BINDING_NAME_ETARFLAG = "Target enemy flag carrier";
 BINDING_NAME_FTARFLAG = "Target friendly flag carrier";
-
-SSPVPRevision = tonumber(string.match("$Revision: 835 $", "(%d+)")) or 0

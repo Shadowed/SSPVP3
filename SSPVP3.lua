@@ -1,5 +1,5 @@
 --[[ 
-	SSPVP by Mayen/Amarand Horde, Icecrown-US (PvE)
+	SSPVP by Mayen/Selari Horde, Illidan-US (PvP)
 	
 	1.x   Release: January 26th 2006
 	2.x   Release: December 27th 2006
@@ -22,19 +22,7 @@ function SSPVP:OnInitialize()
 			general = {
 				channel = "BATTLEGROUND",
 			},
-			priorities = {
-				afk = 1,
-				ratedArena = 2,
-				skirmArena = 3,
-				eots = 3,
-				av = 3,
-				ab = 3,
-				sota = 3,
-				wsg = 3,
-				group = 4,
-				instance = 5,
-				none = 6,
-			},
+			priorities = {afk = 1, ratedArena = 2, skirmArena = 3, eots = 3, av = 3, ab = 3, sota = 3, wsg = 3, group = 4, instance = 5, none = 6},
 			join = {
 				enabled = true,
 				arena = 10,
@@ -62,14 +50,14 @@ function SSPVP:OnInitialize()
 	
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("SSPVPDB", self.defaults)
 		
-	self.revision = tonumber(string.match("$Revision: 816 $", "(%d+)")) or 0
-	self.revision = max(self.revision, SSPVPRevision)
+	self.revision = tonumber(string.match("$Revision$", "(%d+)")) or 0
 		
+	-- So we don't have to do concats so much
 	for i=1, MAX_BATTLEFIELD_QUEUES do
 		queueID[i] = "queue" .. i
 	end
 	
-	-- Try and make sure arena info is up to date
+	-- Make sure we have the team information without having to win an arena first.
 	for i=1, MAX_ARENA_TEAMS do
 		ArenaTeamRoster(i)
 	end
@@ -177,6 +165,7 @@ function SSPVP:ZONE_CHANGED_NEW_AREA()
 	zoneText = zone
 end
 
+-- Deal with battlefield updates
 function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 	for i=1, MAX_BATTLEFIELD_QUEUES do
 		local status, map, instanceID, _, _, teamSize, isRegistered = GetBattlefieldStatus(i)
@@ -236,8 +225,7 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 				for name, module in pairs(self.modules) do
 					-- Make sure the module is enabled, and that it can actually be enabled
 					if( module.EnableModule ) then
-						-- Some modules have to be disabled even if they're about to be re-enabled
-						-- when switching battlefields, this is mostly to be safe
+						-- Some modules have to be disabled even if they're about to be re-enabled when switching battlefields, this is mostly to be safe
 						if( module.isActive ) then
 							module.isActive = nil
 							module.DisableModule(module)
@@ -249,12 +237,6 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 						end
 					end
 				end
-
-				-- No sense in requesting scores if you're in arena
-				if( abbrev ~= "arena" ) then
-					self:ScheduleRepeatingTimer(RequestBattlefieldScoreData, 15)
-					RequestBattlefieldScoreData()
-				end
 				
 				activeBF = map
 				activeID = i
@@ -264,8 +246,6 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 				activeID = nil
 				activeBF = nil
 				screenTaken = nil
-	
-				self:CancelTimer("RequestBattlefieldScoreData", true)
 
 				for name, module in pairs(self.modules) do
 					if( module.isActive ) then
@@ -274,14 +254,14 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 					end
 				end
 				
-			-- Been queued for less then 2 seconds so show stat data
+			-- Been queued for less than 2 seconds so show stat data
 			elseif( status == "queued" and GetBattlefieldTimeWaited(i) <= 2000 ) then
 				-- Blizzards queued doesn't cover all battlefields, just arenas
 				if( teamSize > 0 ) then
 					if( isRegistered ) then
-						self:Print(string.format(L["You are now in the queue for %s Arena (%dvs%d)."], L["Rated"], teamSize, teamSize))
+						self:Print(string.format(L["You are now in the queue for %s Arenas (%dvs%d)."], L["Rated"], teamSize, teamSize))
 					else
-						self:Print(string.format(L["You are now in the queue for %s Arena (%dvs%d)."], L["Skirmish"], teamSize, teamSize))
+						self:Print(string.format(L["You are now in the queue for %s Arenas (%dvs%d)."], L["Skirmish"], teamSize, teamSize))
 					end
 				else
 					self:Print(string.format(L["You are now in the queue for %s."], map))
@@ -294,7 +274,7 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 			end
 		end
 
-		-- We no longer have this battlefield as confirmation likely time ran out, we left queue or we joined it manually
+		-- We never auto joined this battlefield, timer ran out of they entered it manually.
 		if( status ~= "confirm" and join.id == i ) then
 			self:ResetJoin()
 		end
@@ -415,11 +395,7 @@ function SSPVP:LeaveBattlefield()
 	-- Theres a delay before the call to arms quest completes, sometimes it's within 0.5 seconds, sometimes it's within 1-3 seconds. If you have auto leave set to 0
 	-- then you'll likely leave before you get credit, so delay the actual leave (if need be) until the quest is credited to us
 	if( select(2, IsInInstance()) == "pvp" and activeBF ) then
-		local playerFaction = 1
-		if( UnitFactionGroup("player") == "Horde" ) then
-			playerFaction = 0
-		end
-	
+		local playerFaction = UnitFactionGroup("player") == "Horde" and 0 or 1
 		if( GetBattlefieldWinner() == playerFaction ) then
 			local callToArms = string.format(L["Call to Arms: %s"], activeBF)
 			for i=1, GetNumQuestLogEntries() do
@@ -706,19 +682,6 @@ function SSPVP:RegisterOOCUpdate(self, func)
 	else
 		queuedUpdates[self] = true
 	end
-end
-
--- Battlefield list
-local list
-function SSPVP:GetBattlefieldList()
-	if( not list ) then
-		list = {["arena"] = L["Arena"], ["eots"] = L["Eye of the Storm"], ["wsg"] = L["Warsong Gulch"], ["ab"] = L["Arathi Basin"], ["av"] = L["Alterac Valley"]}
-	end
-	
-	list["sota"] = L["Strand of the Ancients"]
-	list["wg"] = L["Wintergrasp"]
-	
-	return list
 end
 
 -- Hook for confirmations on leaving
