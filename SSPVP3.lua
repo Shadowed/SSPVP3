@@ -237,6 +237,12 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 						end
 					end
 				end
+
+				-- No sense in requesting scores if you're in arena
+				if( abbrev ~= "arena" ) then
+					self:ScheduleRepeatingTimer(RequestBattlefieldScoreData, 15)
+					RequestBattlefieldScoreData()
+				end
 				
 				activeBF = map
 				activeID = i
@@ -246,6 +252,8 @@ function SSPVP:UPDATE_BATTLEFIELD_STATUS()
 				activeID = nil
 				activeBF = nil
 				screenTaken = nil
+	
+				self:CancelTimer("RequestBattlefieldScoreData", true)
 
 				for name, module in pairs(self.modules) do
 					if( module.isActive ) then
