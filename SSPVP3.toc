@@ -1,4 +1,4 @@
-## Interface: 30100
+## Interface: 30200
 ## Title: SSPVP 3
 ## Notes: PvP, Battleground and Arena mod
 ## Author: Mayen/Selari
@@ -8,7 +8,6 @@
 libs\LibStub-1.0\LibStub-1.0.xml
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\AceAddon-3.0\AceAddon-3.0.xml
-libs\AceConsole-3.0\AceConsole-3.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
 libs\AceEvent-3.0\AceEvent-3.0.xml
 libs\AceTimer-3.0\AceTimer-3.0.xml
@@ -19,7 +18,6 @@ libs\AceConfig-3.0\AceConfig-3.0.xml
 
 localization.enUS.lua
 localization.deDE.lua
-localization.frFR.lua
 localization.zhCN.lua
 
 SSPVP3.lua

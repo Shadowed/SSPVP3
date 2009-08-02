@@ -96,12 +96,12 @@ function Match:UPDATE_WORLD_STATES()
 
 	Alliance.bases = aBases
 	Alliance.points = aPoints
-	Alliance.left = 2000 - aPoints
+	Alliance.left = 1600 - aPoints
 	Alliance.time = Alliance.left / pointsSec[self.activeBF][aBases]		
 
 	Horde.bases = hBases
 	Horde.points = hPoints
-	Horde.left = 2000 - hPoints
+	Horde.left = 1600 - hPoints
 	Horde.time = Horde.left / pointsSec[self.activeBF][hBases]
 
 	-- Figure out time left in match

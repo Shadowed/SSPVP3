@@ -63,11 +63,11 @@ function Window:PopupWindow(statusID, instanceID, map, teamSize, isRegistered)
 		name = string.format("%s #%d", map, instanceID)
 	end
 
-	local frame = StaticPopup_Show("CONFIRM_NEW_BFENTRY", name, SecondsToTime(GetBattlefieldPortExpiration(statusID) / 1000), statusID)
+	local frame = StaticPopup_Show("CONFIRM_NEW_BFENTRY", name, SecondsToTime(GetBattlefieldPortExpiration(statusID)), statusID)
 	if( frame ) then
 		frame.data = statusID
 		frame.text_arg1 = name
-		frame.portExpiration = GetBattlefieldPortExpiration(statusID) / 1000 + GetTime()
+		frame.portExpiration = GetBattlefieldPortExpiration(statusID) + GetTime()
 	end
 end
 

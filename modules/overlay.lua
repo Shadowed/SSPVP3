@@ -4,6 +4,7 @@ local L = SSPVPLocals
 
 local MAX_ROWS = 20
 local ACTIVE_ROWS = 0
+local ACTIVE_CATS = 0
 
 local longestText = 0
 local timers, catCount = {}, {}
@@ -19,7 +20,7 @@ local categories = {
 function SSOverlay:OnInitialize()
 	self.defaults = {
 		profile = {
-			locked = true,
+			locked = false,
 			noClick = false,
 			growUp = false,
 			shortTime = true,
@@ -297,6 +298,7 @@ end
 function SSOverlay:RemoveRow(id)
 	ACTIVE_ROWS = 0
 
+	local updated
 	for _, data in pairs(timers) do
 		if( data.enabled and data.id == id ) then
 			updated = true

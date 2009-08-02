@@ -1,363 +1,206 @@
 SSPVPLocals = {
-	["0 Sec"] = "0 Sec",
-	
-	["Horde"] = "Horde",
-	["Alliance"] = "Alliance",
-
-	-- Battlefield names
-	["Warsong Gulch"] = "Warsong Gulch",
-	["Arathi Basin"] = "Arathi Basin",
-	["Alterac Valley"] = "Alterac Valley",
-	["Eye of the Storm"] = "Eye of the Storm",
-
-	["Blade's Edge Arena"] = "Blade's Edge Arena",
-	["Nagrand Arena"] = "Nagrand Arena",
-	["Ruins of Lordaeron"] = "Ruins of Lordaeron",
-	
-	["Wintergrasp"] = "Wintergrasp",
-	["Strand of the Ancients"] = "Strand of the Ancients",
-
-	["Eastern Kingdoms"] = "Eastern Kingdoms",
-	
-	-- Arena info
-	["Rated"] = "Rated",
-	["Skirmish"] = "Skirmish",
-	["Arena"] = "Arena",
-	["All Arenas"] = "All Arenas",
-	["%s (%dvs%d)"] = "%s (%dvs%d)",
-	["Rated Arena"] = "Rated Arena",
-	["Skirmish Arena"] = "Skirmish Arena",
-
-	-- Auto joining
-	["You are now in the queue for %s Arenas (%dvs%d)."] = "You are now in the queue for %s Arenas (%dvs%d).",
-	["You are now in the queue for %s."] = "You are now in the queue for %s.",
-	
-	["Higher priority battlefield ready, auto joining %s in %d seconds."] = "Higher priority battlefield ready, auto joining %s in %d seconds.",
-	["Your current activity is a higher priority than %s, not auto joining."] = "Your current activity is a higher priority than %s, not auto joining.",
-	["You have the battlefield entry window hidden for %s, will not auto join."] = "You have the battlefield entry window hidden for %s, will not auto join.",
-	
-	["You are about to leave the active or queued arena %s (%dvs%d), are you sure?"] = "You are about to leave the active or queued arena %s (%dvs%d), are you sure?",
-	["You are about to leave the active or queued battleground %s, are you sure?"] = "You are about to leave the active or queued battleground %s, are you sure?",
-	
-	["Screenshot saved as WoWScrnShot_%s.%s."] = "Screenshot saved as WoWScrnShot_%s.%s.",
-	["Failed to save screenshot."] = "Failed to save screenshot.",
-	
-	["Unknown"] = "Unknown",
-	["the raid group.$"] = "the raid group.$",
-	
-	["Releasing..."] = "Releasing...",
-	["Using %s..."] = "Using %s...",
-	["Starting: %s"] = "Starting: %s",
-	
-	["The"] = "The",
-	
-	-- Overlay
-	["Unavailable"] = "Unavailable",
-	["<1 Min"] = "<1 Min",
-	["Disabled"] = "Disabled",
-	["Suspended"] = "Suspended",
-	["Joining"] = "Joining",
-	["%s |cffffffff(%dvs%d)|r"] = "%s |cffffffff(%dvs%d)|r",
-	["Flag Respawn: %s"] = "Flag Respawn: %s",
-	["Auto release disabled, %d %s until release"] = "Auto release disabled, %d %s until release",
-	["%s is ready to join, auto leave disabled."] = "%s is ready to join, auto leave disabled.",
-	
-	-- Modified queue window
-	["You are now eligible to enter %s. %s left to join."] = "You are now eligible to enter %s. %s left to join.",
-	
-	-- Mover
-	["Capture bar anchor"] = "Capture bar anchor",
-	["PvP objectives anchor"] = "PvP objectives anchor",
-	["Score objectives anchor"] = "Score objectives anchor",
-	["Left Click + Drag to move the frame, Right Click + Drag to reset it to it's original position."] = "Left Click + Drag to move the frame, Right Click + Drag to reset it to it's original position.",
-	
-	-- So we don't auto leave before completing
-	["Call to Arms: %s"] = "Call to Arms: %s",
-	["You currently have the battleground daily quest for %s, auto leave has been set to occure once the quest completes."] = "You currently have the battleground daily quest for %s, auto leave has been set to occure once the quest completes.",
-	
-	-- Flags
-	["was picked up by (.+)!"] = "was picked up by (.+)!",
-	["captured the"] = "captured the",
-	["was dropped by (.+)!"] = "was dropped by (.+)!",
-	["was returned to its base"] = "was returned to its base",
-	
-	["(.+) has taken the flag!"] = "(.+) has taken the flag!",
-	["The flag has been dropped"] = "The flag has been dropped",
-	
-	["Held Time: %s"] = "Held Time: %s",
-	["Capture Time: %s"] = "Capture Time: %s",
-	
-	["Cannot target %s, in combat"] = "Cannot target %s, in combat",
-	["Targetting %s"] = "Targetting %s",
-	["%s is out of range"] = "%s is out of range",
-	
-	-- CT support
-	["-%d Reinforcements"] = "-%d Reinforcements",
-	["+%d Points"] = "+%d Points",
-	
-	-- Score tooltip
 	["%s (%d players)"] = "%s (%d players)",
-	["Servers"] = "Servers",
-	["Classes"] = "Classes",
-	
-	-- Wintergrasp
-	["Battle starts: %s"] = "Battle starts: %s",
-	
-	-- Arathi basin
-	["claims the ([^!]+)"] = "claims the ([^!]+)",
-	["has taken the ([^!]+)"] = "has taken the ([^!]+)",
-	["has assaulted the ([^!]+)"] = "has assaulted the ([^!]+)",
-	["has defended the ([^!]+)"] = "has defended the ([^!]+)",
-	
-	["Bases: ([0-9]+)  Resources: ([0-9]+)/2000"] = "Bases: ([0-9]+)  Resources: ([0-9]+)/2000",
-	["Final Score: %d"] = "Final Score: %d",
-	["Time Left: %s"] = "Time Left: %s",
-	["Bases to win: %d"] = "Bases to win: %d",
-	["Base Final: %d"] = "Base Final: %d",
-	
-	-- Alterac valley
-	["Herald"] = "Herald",
-	["Snowfall Graveyard"] = "Snowfall Graveyard",
-	["claims the Snowfall graveyard"] = "claims the Snowfall graveyard",
-	["(.+) is under attack"] = "(.+) is under attack",
-	["(.+) was taken"] = "(.+) was taken",
-	["(.+) was destroyed"] = "(.+) was destroyed",
-	
-	["Reinforcements: ([0-9]+)"] = "Reinforcements: ([0-9]+)",
+	["%s (%dvs%d)"] = "%s (%dvs%d)",
+	["%s is out of range"] = "%s is out of range",
 	["%s will be captured by the %s in %s"] = "%s will be captured by the %s in %s",
-	
-	-- Eye of the Storm
-	["Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000"] = "Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000",
-	["Bases %d  Points %d/2000"] = "Bases %d  Points %d/2000",
-	["flag has been reset"] = "flag has been reset",
-	
-	-- Strand of the Ancient
-	["Bomb: %s"] = "Bomb: %s",
-	
-	-- Gods
-	["Ivus the Forest Lord"] = "Ivus the Forest Lord",
-	["Lokholar the Ice Lord"] = "Lokholar the Ice Lord",
-	
-	["Ivus Moving: %s"] = "Ivus Moving: %s",
-	["Lokholar Moving: %s"] = "Lokholar Moving: %s",
-	
-	["Wicked, wicked, mortals"] = "Wicked, wicked, mortals",
-	["WHO DARES SUMMON LOKHOLA"] = "WHO DARES SUMMON LOKHOLA",
-
-	-- Captain Galvangar
-	["Captain Galvangar"] = "Captain Galvangar",
-	
-	["The Alliance has slain Captain Galvangar."] = "The Alliance has slain Captain Galvangar.",
-	["The Alliance has engaged Captain Galvangar."] = "The Alliance has engaged Captain Galvangar.",
-	["The Alliance has reset Captain Galvangar."] = "The Alliance has reset Captain Galvangar.",
-	
-	["Your kind has no place in Alterac Valley"] = "Your kind has no place in Alterac Valley",
-	["I'll never fall for that, fool!"] = "I'll never fall for that, fool!",
-	
-	-- Captain Balinda
-	["Captain Balinda Stonehearth"] = "Captain Balinda Stonehearth",
-	
-	["The Horde has slain Captain Balinda Stonehearth."] = "The Horde has slain Captain Balinda Stonehearth.",
-	["The Horde has engaged Captain Balinda Stonehearth."] = "The Horde has engaged Captain Balinda Stonehearth.",
-	["The Horde has reset Captain Balinda Stonehearth."] = "The Horde has reset Captain Balinda Stonehearth.",
-	
-	["Begone, uncouth scum!"] = "Begone, uncouth scum!",
-	["Filthy Frostwolf cowards"] = "Filthy Frostwolf cowards",
-	
-	-- Drek'Thar
-	["Drek'Thar"] = "Drek'Thar",
-	
-	["The Alliance has engaged Drek'Thar."] = "The Alliance has engaged Drek'Thar.",
-	["The Alliance has reset Drek'Thar."] = "The Alliance has reset Drek'Thar.",
-	
-	["Stormpike weaklings"] = "Stormpike weaklings",
-	["Stormpike filth!"] = "Stormpike filth!",
-	["You seek to draw the General of the Frostwolf"] = "You seek to draw the General of the Frostwolf",
-	
-	-- Vanndar
-	["Vanndar Stormpike"] = "Vanndar Stormpike",
-	
-	["The Horde has reset Vanndar Stormpike."] = "The Horde has reset Vanndar Stormpike.",
-	["The Horde has engaged Vanndar Stormpike."] = "The Horde has engaged Vanndar Stormpike.",
-	
-	["Why don't ya try again"] = "Why don't ya try again",
-	["Soldiers of Stormpike, your General is under attack"] = "Soldiers of Stormpike, your General is under attack",	
-	["You'll never get me out of me"] = "You'll never get me out of me",	
-
-	-- Text for catching time until match starts
-	["2 minute"] = "2 minute",
+	["(.+) has taken the flag!"] = "(.+) has taken the flag!",
+	["(.+) is under attack"] = "(.+) is under attack",
+	["(.+) was destroyed"] = "(.+) was destroyed",
+	["(.+) was taken"] = "(.+) was taken",
+	["+%d Points"] = "+%d Points",
+	["-%d Reinforcements"] = "-%d Reinforcements",
+	["0 Sec"] = "0 Sec",
 	["1 minute"] = "1 minute",
+	["2 minute"] = "2 minute",
 	["30 seconds"] = "30 seconds",
-	["Fifteen seconds"] = "Fifteen seconds",
-	["Thirty seconds"] = "Thirty seconds",
-	["One minute"] = "One minute",
-	
-	-- Slash commands
-	["SSPVP slash commands"] = "SSPVP slash commands",
-	[" - suspend - Suspends auto join and leave for 5 minutes, or until you log off."] = " - suspend - Suspends auto join and leave for 5 minutes, or until you log off.",
-	[" - ui - Opens the configuration for SSPVP."] = " - ui - Opens the configuration for SSPVP.",
-	
-	["Auto join and leave has been suspended for the next 5 minutes, or until you log off."] = "Auto join and leave has been suspended for the next 5 minutes, or until you log off.",
-	["Suspension has been removed, you will now auto join and leave again."] = "Suspension has been removed, you will now auto join and leave again.",
-	["Suspension is still active, will not auto join or leave."] = "Suspension is still active, will not auto join or leave.",
-	
-	-- Overlay categories
-	["Faction Balance"] = "Faction Balance",
-	["Timers"] = "Timers",
-	["Match Info"] = "Match Info",
-	["Bases to win"] = "Bases to win",
-	["Mine Reinforcement"] = "Mine Reinforcement",
-	["Battlefield Queue"] = "Battlefield Queue",
-	["Frame Moving"] = "Frame Moving",
-	
-	-- GUI
-	-- Flag configuration
-	["Flags"] = "Flags",
-	
-	["Show flag carrier"] = "Show flag carrier",
-	["Show flag respawn time on overlay"] = "Show flag respawn time on overlay",
-	["Show flag capture times on overlay"] = "Show flag capture times on overlay",
-	["Color carrier name by class"] = "Color carrier name by class",
-	["Show carrier health when available"] = "Show carrier health when available",
-	["Text to execute when clicking the carrier button"] = "Text to execute when clicking the carrier button",
-	
-	-- Match configuration
-	["Match info"] = "Match info",
-	
-	["Show basic match information"] = "Show basic match information",
-	["Show bases to win"] = "Show bases to win",
-	
-	-- Timer configuration
-	["Show battle start time"] = "Show battle start time",
-	["Show timer when match starts in"] = "Show timer when match starts in",
-	["Only show the battle start timer when the match starts within the set amount of minutes."] = "Only show the battle start timer when the match starts within the set amount of minutes.",
-	["Timers"] = "Timers",
-	
-	["Enable capture timers"] = "Enable capture timers",
-	["Show resources gained through mines"] = "Show resources gained through mines",
-	["Show resources lost from objectives in SCT/FCT/MSBT/ect"] = "Show resources lost from objectives in SCT/FCT/MSBT/ect",
-	
-	["Alerts"] = "Alerts",
-	
-	["Enable interval capture messages"] = "Enable interval capture messages",
+	["<1 Min"] = "<1 Min",
 	["Alert interval"] = "Alert interval",
-	["Interval frequency increase"] = "Interval frequency increase",
-	["How much faster alerts should come when theres two minute left on the timer."] = "How much faster alerts should come when theres two minute left on the timer.",
-	
-	-- General
-	["General"] = "General",
-	
+	["Alerts"] = "Alerts",
+	["All Arenas"] = "All Arenas",
+	["Alliance"] = "Alliance",
+	["Alterac Valley"] = "Alterac Valley",
 	["Announcement channel"] = "Announcement channel",
-	["Sound file"] = "Sound file",
-	["Sound file to play when a queue is ready, this must be located inside Interface/AddOns/SSPVP before WoW is opened."] = "Sound file to play when a queue is ready, this must be located inside Interface/AddOns/SSPVP before WoW is opened.",
-	["Play sound"] = "Play sound",
-	["Stop sound"] = "Stop sound",
-	
-	["Auto queue"] = "Auto queue",
-	
-	["Auto queue when ungrouped"] = "Auto queue when ungrouped",
+	["Arathi Basin"] = "Arathi Basin",
+	["Arena"] = "Arena",
+	["Auto append server names when whispering"] = "Auto append server names when whispering",
 	["Auto group queue when grouped and leader"] = "Auto group queue when grouped and leader",
-	
-	["Queue overlay"] = "Queue overlay",
-	
-	["Enable battlefield queue overlay"] = "Enable battlefield queue overlay",
-	["Show queue overlay inside battlefields"] = "Show queue overlay inside battlefields",
-	
-	["Entry window"] = "Entry window",
-	["Enable modified battlefield join dialog"] = "Enable modified battlefield join dialog",
-	["Shows the time left to join a battlefield in the battlefield entry dialog."] = "Shows the time left to join a battlefield in the battlefield entry dialog.",
+	["Auto join"] = "Auto join",
+	["Auto leave"] = "Auto leave",
+	["Auto leave has been suspended for the next 5 minutes, or until you log off."] = "Auto leave has been suspended for the next 5 minutes, or until you log off.",
+	["Auto queue"] = "Auto queue",
+	["Auto queue when ungrouped"] = "Auto queue when ungrouped",
+	["Auto release disabled, %d %s until release"] = "Auto release disabled, %d %s until release",
+	["Auto release from corpse while inside"] = "Auto release from corpse while inside",
+	["Auto use soul stone on death"] = "Auto use soul stone on death",
+	["Automatically appends \"-server\" to player names when whispering them, will not append if more than one person matches the name."] = "Automatically appends \"-server\" to player names when whispering them, will not append if more than one person matches the name.",
+	["Background color"] = "Background color",
+	["Background opacity"] = "Background opacity",
+	["Base Final: %d"] = "Base Final: %d",
+	["Bases %d  Points %d/2000"] = "Bases %d  Points %d/2000",
+	["Bases to win: %d"] = "Bases to win: %d",
+	["Bases: ([0-9]+)  Resources: ([0-9]+)/2000"] = "Bases: ([0-9]+)  Resources: ([0-9]+)/2000",
+	["Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000"] = "Bases: ([0-9]+)  Victory Points: ([0-9]+)/2000",
+	["Battle starts: %s"] = "Battle starts: %s",
+	["Battlefield"] = "Battlefield",
+	["Battlefield Queue"] = "Battlefield Queue",
+	["Battleground"] = "Battleground",
+	["Begone, uncouth scum!"] = "Begone, uncouth scum!",
+	["Blade's Edge Arena"] = "Blade's Edge Arena",
+	["Bomb: %s"] = "Bomb: %s",
+	["Border color"] = "Border color",
+	["Call to Arms: %s"] = "Call to Arms: %s",
+	["Cannot target %s, in combat"] = "Cannot target %s, in combat",
+	["Captain Balinda Stonehearth"] = "Captain Balinda Stonehearth",
+	["Captain Galvangar"] = "Captain Galvangar",
+	["Capture Time: %s"] = "Capture Time: %s",
+	["Capture bar anchor"] = "Capture bar anchor",
+	["Category text color"] = "Category text color",
+	["Classes"] = "Classes",
+	["Color"] = "Color",
+	["Color carrier name by class"] = "Color carrier name by class",
+	["Color player names by class"] = "Color player names by class",
+	["Confirm when leaving queues"] = "Confirm when leaving queues",
+	["Death"] = "Death",
+	["Disable overlay clicking"] = "Disable overlay clicking",
+	["Drek'Thar"] = "Drek'Thar",
+	["Eastern Kingdoms"] = "Eastern Kingdoms",
+	["Enable auto leave"] = "Enable auto leave",
 	["Enable battlefield join reminder"] = "Enable battlefield join reminder",
-	["Will pop the battlefield window back up after it's been closed occasionally until the queue expires."] = "Will pop the battlefield window back up after it's been closed occasionally until the queue expires.",
-	
+	["Enable battlefield queue overlay"] = "Enable battlefield queue overlay",
+	["Enable capture timers"] = "Enable capture timers",
+	["Enable interval capture messages"] = "Enable interval capture messages",
+	["Enable modified battlefield join dialog"] = "Enable modified battlefield join dialog",
+	["Entry window"] = "Entry window",
+	["Eye of the Storm"] = "Eye of the Storm",
+	["Faction Balance"] = "Faction Balance",
+	["Failed to save screenshot."] = "Failed to save screenshot.",
+	["Fifteen seconds"] = "Fifteen seconds",
+	["Filthy Frostwolf cowards"] = "Filthy Frostwolf cowards",
+	["Final Score: %d"] = "Final Score: %d",
+	["Flag Respawn: %s"] = "Flag Respawn: %s",
+	["Flags"] = "Flags",
+	["Frame"] = "Frame",
 	["Frame anchors"] = "Frame anchors",
-	
+	["General"] = "General",
+	["Grow display up"] = "Grow display up",
+	["Held Time: %s"] = "Held Time: %s",
+	["Herald"] = "Herald",
+	["Hide class icons"] = "Hide class icons",
+	["Horde"] = "Horde",
+	["How much faster alerts should come when theres two minute left on the timer."] = "How much faster alerts should come when theres two minute left on the timer.",
+	["I'll never fall for that, fool!"] = "I'll never fall for that, fool!",
+	["Interval frequency increase"] = "Interval frequency increase",
+	["Isle of Conquest"] = "Isle of Conquest",
+	["Ivus Moving: %s"] = "Ivus Moving: %s",
+	["Ivus the Forest Lord"] = "Ivus the Forest Lord",
+	["Leave delay"] = "Leave delay",
+	["Left Click + Drag to move the frame, Right Click + Drag to reset it to it's original position."] = "Left Click + Drag to move the frame, Right Click + Drag to reset it to it's original position.",
 	["Lock PvP objectives"] = "Lock PvP objectives",
 	["Lock battlefield score board"] = "Lock battlefield score board",
 	["Lock node capture bar"] = "Lock node capture bar",
-	
-	["Show bomb explosion timers"] = "Show bomb explosion timers",
-	
-	-- Auto leave
-	["Auto leave"] = "Auto leave",
-
-	["Enable auto leave"] = "Enable auto leave",
-	["Screenshot score on game end"] = "Screenshot score on game end",
-	["Confirm when leaving queues"] = "Confirm when leaving queues",
-	
-	["Leave delay"] = "Leave delay",
-	
-	-- Auto join
-	["Auto join"] = "Auto join",
-	
-	["Enable auto join"] = "Enable auto join",
-	["Disable auto join if entry dialog is hidden"] = "Disable auto join if entry dialog is hidden",
-	["Priority check mode"] = "Priority check mode",
-
-	["Delay"] = "Delay",
-
-	["Battleground join delay"] = "Battleground join delay",
-	["AFK battleground join delay"] = "AFK battleground join delay",
-	["Arena join delay"] = "Arena join delay",
-
-	["Priorities"] = "Priorities",
-	["Priorities for joining battlegrounds."] = "Priorities for joining battlegrounds.",
-	["Scenarios"] = "Scenarios",
-	
-	-- Battlefield
-	["Battlefield"] = "Battlefield",
-	
-	["Auto append server names when whispering"] = "Auto append server names when whispering",
-	["Automatically appends \"-server\" to player names when whispering them, will not append if more than one person matches the name."] = "Automatically appends \"-server\" to player names when whispering them, will not append if more than one person matches the name.",
-	
-	["Scoreboard"] = "Scoreboard",
-	
-	["Color player names by class"] = "Color player names by class",
-	["Hide class icons"] = "Hide class icons",
-	
-	["Death"] = "Death",
-	
-	["Auto use soul stone on death"] = "Auto use soul stone on death",
-	["Auto release from corpse while inside"] = "Auto release from corpse while inside",
-	
-	-- Overlay
-	["Overlay"] = "Overlay",
-	
-	["Grow display up"] = "Grow display up",
-	["Disable overlay clicking"] = "Disable overlay clicking",
-	["Use HH:MM:SS short time format"] = "Use HH:MM:SS short time format",
-	["Frame"] = "Frame",
 	["Lock overlay"] = "Lock overlay",
-	["Background opacity"] = "Background opacity",
-	["Scale"] = "Scale",
-	["Color"] = "Color",
-	["Background color"] = "Background color",
-	["Border color"] = "Border color",
-	["Text color"] = "Text color",
-	["Category text color"] = "Category text color",
-
-	["You might have to do a /console reloadui before changes take effect."] = "You might have to do a /console reloadui before changes take effect.",
-
-	["Raid"] = "Raid",
-	["Battleground"] = "Battleground",
+	["Lokholar Moving: %s"] = "Lokholar Moving: %s",
+	["Lokholar the Ice Lord"] = "Lokholar the Ice Lord",
+	["Match Info"] = "Match Info",
+	["Match info"] = "Match info",
+	["Mine Reinforcement"] = "Mine Reinforcement",
+	["Nagrand Arena"] = "Nagrand Arena",
+	["One minute"] = "One minute",
+	["Only show the battle start timer when the match starts within the set amount of minutes."] = "Only show the battle start timer when the match starts within the set amount of minutes.",
+	["Overlay"] = "Overlay",
 	["Party"] = "Party",
-	
-	["Less than"] = "Less than",
-	["Less than or equal"] = "Less than or equal",
-
-	-- Priorities
-	["afk"] = "Away from Keyboard",
-	["ratedArena"] = "Rated Arena",
-	["skirmArena"] = "Skirmish Arena",
-	["eots"] = "Eye of the Storm",
-	["av"] = "Alterac Valley",
-	["ab"] = "Arathi Basin",
-	["wsg"] = "Warsong Gulch",
-	["group"] = "In raid/party",
-	["instance"] = "Instance",
-	["sota"] = "Strand of the Ancients",
-	["none"] = "Everything Else",
+	["Play sound"] = "Play sound",
+	["PvP objectives anchor"] = "PvP objectives anchor",
+	["Queue overlay"] = "Queue overlay",
+	["Raid"] = "Raid",
+	["Rated"] = "Rated",
+	["Rated Arena"] = "Rated Arena",
+	["Reinforcements: ([0-9]+)"] = "Reinforcements: ([0-9]+)",
+	["Releasing..."] = "Releasing...",
+	["Ruins of Lordaeron"] = "Ruins of Lordaeron",
+	["Scale"] = "Scale",
+	["Score objectives anchor"] = "Score objectives anchor",
+	["Scoreboard"] = "Scoreboard",
+	["Screenshot saved as WoWScrnShot_%s.%s."] = "Screenshot saved as WoWScrnShot_%s.%s.",
+	["Screenshot score on game end"] = "Screenshot score on game end",
+	["Servers"] = "Servers",
+	["Show bases to win"] = "Show bases to win",
+	["Show basic match information"] = "Show basic match information",
+	["Show battle start time"] = "Show battle start time",
+	["Show bomb explosion timers"] = "Show bomb explosion timers",
+	["Show carrier health when available"] = "Show carrier health when available",
+	["Show flag capture times on overlay"] = "Show flag capture times on overlay",
+	["Show flag carrier"] = "Show flag carrier",
+	["Show flag respawn time on overlay"] = "Show flag respawn time on overlay",
+	["Show queue overlay inside battlefields"] = "Show queue overlay inside battlefields",
+	["Show resources gained through mines"] = "Show resources gained through mines",
+	["Show resources lost from objectives in SCT/FCT/MSBT/ect"] = "Show resources lost from objectives in SCT/FCT/MSBT/ect",
+	["Show timer when match starts in"] = "Show timer when match starts in",
+	["Shows the time left to join a battlefield in the battlefield entry dialog."] = "Shows the time left to join a battlefield in the battlefield entry dialog.",
+	["Skirmish"] = "Skirmish",
+	["Skirmish Arena"] = "Skirmish Arena",
+	["Snowfall Graveyard"] = "Snowfall Graveyard",
+	["Soldiers of Stormpike, your General is under attack"] = "Soldiers of Stormpike, your General is under attack",
+	["Sound file"] = "Sound file",
+	["Sound file to play when a queue is ready, this must be located inside Interface/AddOns/SSPVP before WoW is opened."] = "Sound file to play when a queue is ready, this must be located inside Interface/AddOns/SSPVP before WoW is opened.",
+	["Starting: %s"] = "Starting: %s",
+	["Stop sound"] = "Stop sound",
+	["Stormpike filth!"] = "Stormpike filth!",
+	["Stormpike weaklings"] = "Stormpike weaklings",
+	["Strand of the Ancients"] = "Strand of the Ancients",
+	["Suspension has been removed, you will now auto leave again."] = "Suspension has been removed, you will now auto leave again.",
+	["Suspension is still active, will not auto leave."] = "Suspension is still active, will not auto leave.",
+	["Target enemy flag carrier"] = "Target enemy flag carrier",
+	["Target friendly flag carrier"] = "Target friendly flag carrier",
+	["Targetting %s"] = "Targetting %s",
+	["Text color"] = "Text color",
+	["Text to execute when clicking the carrier button"] = "Text to execute when clicking the carrier button",
+	["The"] = "The",
+	["The Alliance has engaged Captain Galvangar."] = "The Alliance has engaged Captain Galvangar.",
+	["The Alliance has engaged Drek'Thar."] = "The Alliance has engaged Drek'Thar.",
+	["The Alliance has reset Captain Galvangar."] = "The Alliance has reset Captain Galvangar.",
+	["The Alliance has reset Drek'Thar."] = "The Alliance has reset Drek'Thar.",
+	["The Alliance has slain Captain Galvangar."] = "The Alliance has slain Captain Galvangar.",
+	["The Horde has engaged Captain Balinda Stonehearth."] = "The Horde has engaged Captain Balinda Stonehearth.",
+	["The Horde has engaged Vanndar Stormpike."] = "The Horde has engaged Vanndar Stormpike.",
+	["The Horde has reset Captain Balinda Stonehearth."] = "The Horde has reset Captain Balinda Stonehearth.",
+	["The Horde has reset Vanndar Stormpike."] = "The Horde has reset Vanndar Stormpike.",
+	["The Horde has slain Captain Balinda Stonehearth."] = "The Horde has slain Captain Balinda Stonehearth.",
+	["The flag has been dropped"] = "The flag has been dropped",
+	["Thirty seconds"] = "Thirty seconds",
+	["Time Left: %s"] = "Time Left: %s",
+	["Timers"] = "Timers",
+	["Unavailable"] = "Unavailable",
+	["Unknown"] = "Unknown",
+	["Use HH:MM:SS short time format"] = "Use HH:MM:SS short time format",
+	["Using %s..."] = "Using %s...",
+	["Vanndar Stormpike"] = "Vanndar Stormpike",
+	["WHO DARES SUMMON LOKHOLA"] = "WHO DARES SUMMON LOKHOLA",
+	["Warsong Gulch"] = "Warsong Gulch",
+	["Where did auto join go?!"] = "Where did auto join go?!",
+	["Why don't ya try again"] = "Why don't ya try again",
+	["Wicked, wicked, mortals"] = "Wicked, wicked, mortals",
+	["Will pop the battlefield window back up after it's been closed occasionally until the queue expires."] = "Will pop the battlefield window back up after it's been closed occasionally until the queue expires.",
+	["Wintergrasp"] = "Wintergrasp",
+	["You are about to leave the active or queued arena %s (%dvs%d), are you sure?"] = "You are about to leave the active or queued arena %s (%dvs%d), are you sure?",
+	["You are about to leave the active or queued battleground %s, are you sure?"] = "You are about to leave the active or queued battleground %s, are you sure?",
+	["You are now eligible to enter %s. %s left to join."] = "You are now eligible to enter %s. %s left to join.",
+	["You are now in the queue for %s Arenas (%dvs%d)."] = "You are now in the queue for %s Arenas (%dvs%d).",
+	["You are now in the queue for %s."] = "You are now in the queue for %s.",
+	["You are probably wondering where auto joining has gone, unfortunately due design decisions by Blizzard addons (like SSPVP!) can no longer auto join battlegrounds.\n\nThere is no way around this, so please don't request that they are added back, I can't do anything about it."] = "You are probably wondering where auto joining has gone, unfortunately due design decisions by Blizzard addons (like SSPVP!) can no longer auto join battlegrounds.\n\nThere is no way around this, so please don't request that they are added back, I can't do anything about it.",
+	["You currently have the battleground daily quest for %s, auto leave has been set to occure once the quest completes."] = "You currently have the battleground daily quest for %s, auto leave has been set to occure once the quest completes.",
+	["You seek to draw the General of the Frostwolf"] = "You seek to draw the General of the Frostwolf",
+	["You'll never get me out of me"] = "You'll never get me out of me",
+	["Your kind has no place in Alterac Valley"] = "Your kind has no place in Alterac Valley",
+	["captured the"] = "captured the",
+	["claims the ([^!]+)"] = "claims the ([^!]+)",
+	["claims the Snowfall graveyard"] = "claims the Snowfall graveyard",
+	["flag has been reset"] = "flag has been reset",
+	["has assaulted the ([^!]+)"] = "has assaulted the ([^!]+)",
+	["has defended the ([^!]+)"] = "has defended the ([^!]+)",
+	["has taken the ([^!]+)"] = "has taken the ([^!]+)",
+	["the raid group.$"] = "the raid group.$",
+	["was dropped by (.+)!"] = "was dropped by (.+)!",
+	["was picked up by (.+)!"] = "was picked up by (.+)!",
+	["was returned to its base"] = "was returned to its base",
 }
-
-BINDING_HEADER_SSPVP = "SSPVP";
-BINDING_NAME_ETARFLAG = "Target enemy flag carrier";
-BINDING_NAME_FTARFLAG = "Target friendly flag carrier";

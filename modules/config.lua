@@ -180,34 +180,10 @@ local function createFlagOptions(bg, order)
 	}
 end
 
--- JOIN PRIORITIES
-local function buildPriorities()
-	local priorities = {}
-	
-	local total = 0
-	for key in pairs(SSPVP.db.profile.priorities) do
-		total = total + 1
-	end
-	
-	for key, order in pairs(SSPVP.db.profile.priorities) do
-		local optionKey = tostring(order)
-		priorities[key] = {
-			order = (order * 10) + 1,
-			type = "range",
-			name = L[key],
-			min = 1, max = total, step = 1,
-			arg = "priorities",
-		}
-	end
-	
-	
-	return priorities
-end
-
 local battlefields = {["arena"] = L["Arena"], ["eots"] = L["Eye of the Storm"], ["wsg"] = L["Warsong Gulch"], ["ab"] = L["Arathi Basin"], ["av"] = L["Alterac Valley"], ["sota"] = L["Strand of the Ancients"], ["wg"] = L["Wintergrasp"]}
 local channels = {["BATTLEGROUND"] = L["Battleground"], ["RAID"] = L["Raid"], ["PARTY"] = L["Party"]}
 
-function loadOptions()
+local function loadOptions()
 	-- If options weren't loaded yet, then do so now
 	options = {
 		type = "group",
@@ -623,87 +599,19 @@ function loadOptions()
 		type = "group",
 		order = 1,
 		name = L["Auto join"],
-		get = get,
-		set = set,
 		args = {
-			general = {
+			help = {
+				order = 0,
 				type = "group",
-				order = 1,
-				name = L["General"],
 				inline = true,
+				name = L["Where did auto join go?!"],
 				args = {
-					enabled = {
-						order = 1,
-						type = "toggle",
-						name = L["Enable auto join"],
-						width = "full",
-						arg = "join",
-					},
-					window = {
-						order = 2,
-						type = "toggle",
-						name = L["Disable auto join if entry dialog is hidden"],
-						arg = "join",
-						width = "full",
-					},
-					priority = {
-						order = 3,
-						type = "select",
-						name = L["Priority check mode"],
-						values = {["less"] = L["Lass than"], ["lseql"] = L["Less than or equal"]},
-						arg = "join",
-					},
-				},
-			},
-			delay = {
-				type = "group",
-				order = 2,
-				name = L["Delay"],
-				inline = true,
-				args = {
-					arena = {
-						order = 1,
-						type = "range",
-						name = L["Arena join delay"],
-						min = 0, max = 60, step = 1,
-						width = "full",
-						arg = "join",
-					},
-					battleground = {
-						order = 2,
-						type = "range",
-						name = L["Battleground join delay"],
-						min = 0, max = 90, step = 1,
-						arg = "join",
-					},
-					afkBattleground = {
-						order = 3,
-						type = "range",
-						name = L["AFK battleground join delay"],
-						min = 0, max = 90, step = 1,
-						arg = "join",
-					},
-				},
-			},
-			priority = {
-				type = "group",
-				order = 1,
-				name = L["Priorities"],
-				args = {
-					desc = {
+					help = {
 						order = 0,
-						type = "header",
-						name = L["Priorities for joining battlegrounds."],
-						width = "full",
+						name = L["You are probably wondering where auto joining has gone, unfortunately due design decisions by Blizzard addons (like SSPVP!) can no longer auto join battlegrounds.\n\nThere is no way around this, so please don't request that they are added back, I can't do anything about it."],
+						type = "description",
 					},
-					scenario = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Scenarios"],
-						args = buildPriorities(),
-					},
-				}
+				},
 			},
 		},
 	}
@@ -922,17 +830,13 @@ SlashCmdList["SSPVP"] = function(input)
 			self:CancelTimer("DisableSuspense", true)
 		else
 			self.suspend = true
-			self:Print(L["Auto join and leave has been suspended for the next 5 minutes, or until you log off."])
+			self:Print(L["Auto leave has been suspended for the next 5 minutes, or until you log off."])
 			self:ScheduleTimer("DisableSuspense", 300)
 		end
 
 		-- Update queue overlay if required
 		self:UPDATE_BATTLEFIELD_STATUS()
-	elseif( input == "ui" ) then
-		Config:Open()
 	else
-		DEFAULT_CHAT_FRAME:AddMessage(L["SSPVP slash commands"])
-		DEFAULT_CHAT_FRAME:AddMessage(L[" - suspend - Suspends auto join and leave for 5 minutes, or until you log off."])
-		DEFAULT_CHAT_FRAME:AddMessage(L[" - ui - Opens the configuration for SSPVP."])
+		Config:Open()
 	end
 end
