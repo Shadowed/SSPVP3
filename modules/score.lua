@@ -5,8 +5,8 @@ local L = SSPVPLocals
 
 local servers = {}
 local classes = {}
-
 local classColors = {}
+local _G = getfenv(0)
 
 function Score:OnInitialize()
 	self.defaults = {
@@ -233,20 +233,20 @@ hooksecurefunc("WorldStateScoreFrame_Update", function()
 	for i=1, MAX_WORLDSTATE_SCORE_BUTTONS do
 		local name, _, _, _, _, faction, _, _, _, classToken = GetBattlefieldScore(FauxScrollFrame_GetOffset(WorldStateScoreScrollFrame) + i)
 		if( name ) then
-			local nameText = getglobal("WorldStateScoreButton" .. i .. "NameText")
+			local nameText = _G["WorldStateScoreButton" .. i .. "NameText"]
 
 			-- Hide class icons
 			if( Score.db.profile.icon ) then
-				getglobal("WorldStateScoreButton" .. i .. "ClassButtonIcon"):Hide()
+				_G["WorldStateScoreButton" .. i .. "ClassButtonIcon"]:Hide()
 			end
 
 			-- Show new rating next to the rating change
 			if( isArena ) then
 				local teamName, oldRating, newRating = GetBattlefieldTeamInfo(faction)
 				if( not dataFailure ) then
-					getglobal("WorldStateScoreButton" .. i .. "HonorGained"):SetText(newRating - oldRating .. " (" .. newRating .. ")")
+					_G["WorldStateScoreButton" .. i .. "HonorGained"]:SetText(newRating - oldRating .. " (" .. newRating .. ")")
 				else
-					getglobal("WorldStateScoreButton" .. i .. "HonorGained"):SetText("----")
+					_G["WorldStateScoreButton" .. i .. "HonorGained"]:SetText("----")
 				end
 			end
 

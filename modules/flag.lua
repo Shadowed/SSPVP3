@@ -363,13 +363,13 @@ function Flag:PositionButtons()
 	end
 
 	for i=1, NUM_ALWAYS_UP_UI_FRAMES do
-		local dynamicIcon = getglobal(string.format("AlwaysUpFrame%dDynamicIconButtonIcon", i))
+		local dynamicIcon = _G[string.format("AlwaysUpFrame%dDynamicIconButtonIcon", i)]
 		if( dynamicIcon and buttons[i] ) then
 			if( dynamicIcon:GetTexture() ) then
 				buttons[i]:ClearAllPoints()
 				buttons[i]:SetPoint("LEFT", UIParent, "BOTTOMLEFT", dynamicIcon:GetRight() + 6, dynamicIcon:GetTop() - 13)
 			else
-				local text = getglobal(string.format("AlwaysUpFrame%dText", i))
+				local text = _G[string.format("AlwaysUpFrame%dText", i)]
 				buttons[i]:ClearAllPoints()
 				buttons[i]:SetPoint("LEFT", UIParent, "BOTTOMLEFT", text:GetRight() + 8, text:GetTop() - 5)
 			end

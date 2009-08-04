@@ -2,6 +2,7 @@ local Move = SSPVP:NewModule("Move", "AceEvent-3.0")
 local L = SSPVPLocals
 local originalPosition = {}
 local tooltip
+local _G = getfenv(0)
 
 function Move:OnInitialize()
 	self.defaults = {
@@ -89,7 +90,7 @@ function Move:UpdateCapturePosition()
 		local scale = WorldStateCaptureBar1:GetEffectiveScale()
 		local y = Move.db.profile.position.capture.y / scale
 		for i=1, NUM_EXTENDED_UI_FRAMES do
-			local captureBar = getglobal("WorldStateCaptureBar" .. i)
+			local captureBar = _G["WorldStateCaptureBar" .. i]
 			if( captureBar and captureBar:IsShown() ) then
 				captureBar:ClearAllPoints()
 				captureBar:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", Move.db.profile.position.capture.x / scale, y)

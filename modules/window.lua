@@ -94,6 +94,7 @@ function Window:UPDATE_BATTLEFIELD_STATUS()
 	end
 end
 
+local _G = getfenv(0)
 StaticPopupDialogs["CONFIRM_NEW_BFENTRY"] = {
 	text = L["You are now eligible to enter %s. %s left to join."],
 	button1 = ENTER_BATTLE,
@@ -112,7 +113,7 @@ StaticPopupDialogs["CONFIRM_NEW_BFENTRY"] = {
 			return
 		end
 
-		getglobal(dialog:GetName() .. "Text"):SetFormattedText(L["You are now eligible to enter %s. %s left to join."], dialog.text_arg1, SecondsToTime(seconds))
+		_G[dialog:GetName() .. "Text"]:SetFormattedText(L["You are now eligible to enter %s. %s left to join."], dialog.text_arg1, SecondsToTime(seconds))
 	end,
 	timeout = 0,
 	whileDead = 1,

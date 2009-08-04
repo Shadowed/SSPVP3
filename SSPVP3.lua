@@ -15,6 +15,7 @@ local L = SSPVPLocals
 local teamTotals = {[2] = 0, [3] = 0, [5] = 0}
 local statusInfo, queuedUpdates, confirmPortLeave, queueID = {}, {}, {}, {}
 local activeBF, activeID, screenTaken, zoneText
+local _G = getfenv(0)
 
 function SSPVP:OnInitialize()
 	self.defaults = {
@@ -477,7 +478,7 @@ function SSPVP:ChatMessage(msg, faction)
 	
 	local foundFrame
 	for i=1, 7 do
-		local frame = getglobal("ChatFrame" .. i)
+		local frame = _G["ChatFrame" .. i]
 		if( frame and frame:IsEventRegistered(event) ) then
 			frame:AddMessage(msg, color.r, color.g, color.b)
 			foundFrame = true
@@ -536,7 +537,7 @@ function SSPVP:PLAYER_REGEN_ENABLED()
 		if( type(handler) == "table" ) then
 			handler[func](handler)
 		elseif( type(func) == "string" ) then
-			getglobal(func)()
+			_G[func]()
 		else
 			func()	
 		end

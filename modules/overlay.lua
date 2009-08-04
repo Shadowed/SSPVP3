@@ -93,6 +93,7 @@ local function safecall(func, ...)
 	end
 end
 
+local _G = getfenv(0)
 local function onClick(self)
 	-- So you won't accidentally click the overlay, make sure we have an on click too
 	if( not IsModifierKeyDown() or not self.data.func ) then
@@ -104,7 +105,7 @@ local function onClick(self)
 	if( row.handler ) then
 		safecall(row.handler[row.func], row.handler, row.arg)
 	elseif( type(row.func) == "string" ) then
-		safecall(getglobal(row.func), row.arg)
+		safecall(_G[row.func], row.arg)
 	else
 		safecall(row.func, row.arg)
 	end
